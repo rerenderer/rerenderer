@@ -75,10 +75,11 @@ class RerendererView extends SurfaceView implements SurfaceHolder.Callback {
             while (true) {
                 Canvas canvas = null;
                 try {
-                    Call call = queue.take();
+                    Call[] calls = queue.take();
                     canvas = mSurfaceHolder.lockCanvas(null);
                     synchronized (mSurfaceHolder) {
-                        call.call(canvas, mPaint);
+                        for (Call call : calls)
+                            call.call(canvas, mPaint);
                     }
                 } catch (InterruptedException e) {
                 } finally {
@@ -89,17 +90,41 @@ class RerendererView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     class JSInterface {
+//
+//        @JavascriptInterface
+//        public void send(String who, String method, String args) {
+//            try {
+//                JSONArray arr = new JSONArray(args);
+//                Object[] argsArr = new Object[arr.length()];
+//                for (Integer i = 0; i < arr.length(); i++) {
+//                    argsArr[i] = arr.get(i);
+//                }
+//                queue.put(new Call(who, method, argsArr));
+//                Log.d("Called: ", "!!" + who + method + argsArr.toString());
+//            } catch (Exception e) {
+//                Log.e("Can't get call", e.toString());
+//            }
+//        }
 
         @JavascriptInterface
-        public void send(String who, String method, String args) {
+        public void send(String calls) {
             try {
-                JSONArray arr = new JSONArray(args);
-                Object[] argsArr = new Object[arr.length()];
-                for (Integer i = 0; i < arr.length(); i++) {
-                    argsArr[i] = arr.get(i);
+                JSONArray callsJSON = new JSONArray(calls);
+                Call[] callsArr = new Call[callsJSON.length()];
+                for (Integer i = 0; i < callsJSON.length(); i++) {
+                    JSONArray callData = callsJSON.getJSONArray(i);
+                    JSONArray args = callData.getJSONArray(2);
+                    Object[] argsArr = new Object[args.length()];
+
+                    for (Integer j = 0; j < args.length(); j++)
+                        argsArr[j] = args.get(j);
+
+                    callsArr[i] = new Call(
+                            callData.getString(0),
+                            callData.getString(1),
+                            argsArr);
                 }
-                queue.put(new Call(who, method, argsArr));
-                Log.d("Called: ", "!!" + who + method + argsArr.toString());
+                queue.put(callsArr);
             } catch (Exception e) {
                 Log.e("Can't get call", e.toString());
             }
@@ -113,7 +138,7 @@ class RerendererView extends SurfaceView implements SurfaceHolder.Callback {
 
     RerendererThread mThread;
     WebView mWebView;
-    LinkedBlockingQueue<Call> queue = new LinkedBlockingQueue<Call>(10);
+    LinkedBlockingQueue<Call[]> queue = new LinkedBlockingQueue<Call[]>(10);
     String mPaintUUIID = UUID.randomUUID().toString();
 
     public RerendererView(Context context, AttributeSet attrs) {
@@ -125,7 +150,7 @@ class RerendererView extends SurfaceView implements SurfaceHolder.Callback {
         webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDefaultTextEncodingName("utf-8");
-        mWebView.loadUrl("http://192.168.0.107:3449/");
+        mWebView.loadUrl("http://192.168.0.107:3449/#android");
         mWebView.addJavascriptInterface(new JSInterface(), "android");
         SurfaceHolder holder = getHolder();
         holder.addCallback(this);
