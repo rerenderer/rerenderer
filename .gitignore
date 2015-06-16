@@ -10,3 +10,4 @@ pom.xml.asc
 .idea
 resources/public/compiled
 *.log
+rerenderer.iml
