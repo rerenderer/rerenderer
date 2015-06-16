@@ -8,7 +8,7 @@
           (list? %) (apply vector (str (first %)) (rest %)))
         path))
 
-(defmacro ..
+(defmacro call!
   [ctx & path]
   (let [path [:call (path-to-vec path)]]
     `(swap! ~ctx conj ~path)))

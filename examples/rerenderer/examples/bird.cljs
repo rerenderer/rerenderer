@@ -27,7 +27,7 @@
   (let [dw (* (/ h 512) 286)
         offset (- 0 (mod (/ bird-x 2) dw))]
     (doseq [x (range offset w dw)]
-      (r/.. ctx (drawImage atlas 0 0 286 512 x 0 dw h)))))
+      (r/call! ctx (drawImage atlas 0 0 286 512 x 0 dw h)))))
 
 (defn is-visible?
   [view-start view-end {:keys [x w]}]
@@ -48,7 +48,7 @@
   (let [sx (get-barier-sprite-x pos color)
         dx (- x view-start)
         dy (if (= pos :up) 0 (- view-h h))]
-    (r/.. ctx (drawImage atlas sx 645 52 320 dx dy w h))))
+    (r/call! ctx (drawImage atlas sx 645 52 320 dx dy w h))))
 
 (defn draw-terrain
   [ctx atlas terrain view-start view-end view-h]
@@ -58,7 +58,7 @@
 
 (defn draw-bird
   [ctx atlas y]
-  (r/.. ctx (drawImage atlas 4 980 36 36
+  (r/call! ctx (drawImage atlas 4 980 36 36
                        (- bird-start-x 18) (- y 18) 36 36)))
 
 (defn draw-score
@@ -67,11 +67,11 @@
   (r/set! (.. ctx -font) "32px monospace")
   (let [text (str "SCORE: " score)
         offset (* 20 (count text))]
-    (r/.. ctx (fillText text (- w offset) 30))))
+    (r/call! ctx (fillText text (- w offset) 30))))
 
 (defn flappy-bird-root
-  [ctx {:keys [w h terrain atlas bird-y bird-x score]}]
-  (r/.. ctx (clearRect 0 0 w h))
+  [ctx {:keys [terrain bird-y bird-x score]} {:keys [atlas w h]}]
+  (r/call! ctx (clearRect 0 0 w h))
   (draw-background ctx atlas w h bird-x)
   (let [view-start (- bird-x bird-start-x)]
     (draw-terrain ctx atlas terrain view-start (+ w view-start) h))
@@ -103,30 +103,29 @@
       result)))
 
 (defn reset-state!
-  [state]
-  (let [{:keys [w initial]} @state]
+  [state {:keys [w]}]
+  (let [{:keys [initial]} @state]
     (reset! state initial)
     (swap! state assoc
            :initial initial
            :terrain (generate-terrain bariers-start (* w bariers-screens)))))
 
 (defn jump
-  [platform state]
-  (let [{:keys [h sounds]} @state]
-    (swap! state update-in [:bird-y]
-           #(if (> h %) (+ jump-high %) %))
-    (r/play! platform (:jump sounds))))
+  [platform state {:keys [h sounds]}]
+  (swap! state update-in [:bird-y]
+         #(if (> h %) (+ jump-high %) %))
+  (r/play! platform (:jump sounds)))
 
 (defn handle-clicks!
-  [platform state]
+  [platform state options]
   (let [clicks (chan)]
     (r/listen! platform "click" clicks)
     (r/listen! platform "keydown" clicks)
     (go-loop []
       (<! clicks)
       (if (:finished @state)
-        (reset-state! state)
-        (jump platform state))
+        (reset-state! state options)
+        (jump platform state options))
       (recur))))
 
 (defn renew-terrain
@@ -145,7 +144,7 @@
          (<= y cy (+ y h)))))
 
 (defn is-lose?
-  [{:keys [bird-y bird-x terrain h]}]
+  [{:keys [bird-y bird-x terrain]} h]
   (cond
     (<= bird-y 0) true
     (some #(has-cord? bird-x bird-y h %) terrain) true
@@ -158,22 +157,22 @@
     bird-y))
 
 (defn update-state-on-timer
-  [state]
+  [state {:keys [w h]}]
   (-> state
       (update-in [:bird-y] fly-down)
       (update-in [:bird-x] inc)
-      (update-in [:terrain] renew-terrain (:w state) (:bird-x state))
+      (update-in [:terrain] renew-terrain w (:bird-x state))
       (update-in [:score] inc)
-      (assoc :finished (is-lose? state))))
+      (assoc :finished (is-lose? state h))))
 
 (defn handle-timer!
-  [platform state]
+  [platform state options]
   (go-loop []
     (<! (timeout tick))
     (when-not (:finished @state)
-      (swap! state update-state-on-timer)
+      (swap! state update-state-on-timer options)
       (when (:finished @state)
-        (r/play! platform (get-in @state [:sounds :die]))))
+        (r/play! platform (get-in options [:sounds :die]))))
     (recur)))
 
 ; Init:
@@ -182,17 +181,17 @@
   [canvas]
   (go (let [platform (browser canvas)
             w (.-width canvas)
-            state (atom {:w w
-                         :h (.-height canvas)
-                         :atlas (<! (r/image platform "/assets/bird.png"))
-                         :terrain (generate-terrain bariers-start (* w bariers-screens))
+            state (atom {:terrain (generate-terrain bariers-start (* w bariers-screens))
                          :bird-y (/ w 2)
                          :bird-x bird-start-x
                          :score 0
-                         :finished false
-                         :sounds {:die (<! (r/sound platform "assets/bird_die.ogg"))
-                                  :jump (<! (r/sound platform "assets/bird_jump.ogg"))}})]
+                         :finished false})
+            options {:sounds {:die (<! (r/sound platform "assets/bird_die.ogg"))
+                              :jump (<! (r/sound platform "assets/bird_jump.ogg"))}
+                     :atlas (<! (r/image platform "/assets/bird.png"))
+                     :w w
+                     :h (.-height canvas)}]
         (swap! state assoc :initial @state)
-        (r/init! platform state flappy-bird-root)
-        (handle-clicks! platform state)
-        (handle-timer! platform state))))
+        (r/init! platform flappy-bird-root state options)
+        (handle-clicks! platform state options)
+        (handle-timer! platform state options))))

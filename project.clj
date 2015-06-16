@@ -14,15 +14,15 @@
                                                    :optimizations :whitespace
                                                    :pretty-print true}}
                                  :examples {:source-paths ["src" "examples"]
-                                        :figwheel {:websocket-host "192.168.0.107"
-                                                   :on-jsload "rerenderer.examples.core/reload"}
-                                        :compiler {:output-to "resources/public/compiled/examples.js"
-                                                   :output-dir "resources/public/compiled"
-                                                   :asset-path "/compiled"
-                                                   :source-map true
-                                                   :main "rerenderer.examples.core"
-                                                   :optimizations :none
-                                                   :pretty-print false}}}
+                                            :figwheel {:websocket-host "192.168.0.107"
+                                                       :on-jsload "rerenderer.examples.core/reload"}
+                                            :compiler {:output-to "resources/public/compiled/examples.js"
+                                                       :output-dir "resources/public/compiled"
+                                                       :asset-path "/compiled"
+                                                       :source-map true
+                                                       :main "rerenderer.examples.core"
+                                                       :optimizations :none
+                                                       :pretty-print false}}}
                         :test-commands {"test" ["phantomjs"
                                                 "resources/test/test.js"
                                                 "resources/test/test.html"]}})

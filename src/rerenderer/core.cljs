@@ -9,15 +9,15 @@
   (play! [this sound]))
 
 (defn render-state!
-  [platform state root ctx]
+  [platform ctx root state options]
   (let [last-draw @ctx]
     (reset! ctx [])
-    (root ctx state)
+    (root ctx state options)
     (when-not (= last-draw @ctx)
       (render! platform @ctx))))
 
 (defn init!
-  [platform state root]
+  [platform root state options]
   (let [ctx (atom [])]
-    (add-watch state :drawer #(render-state! platform %4 root ctx))
-    (render-state! platform @state root ctx)))
+    (add-watch state :drawer #(render-state! platform ctx root %4 options))
+    (render-state! platform ctx root @state options)))
