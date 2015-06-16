@@ -69,14 +69,26 @@
         offset (* 20 (count text))]
     (r/call! ctx (fillText text (- w offset) 30))))
 
+(defn draw-click-to-start
+  [ctx w h]
+  (r/set! (.. ctx -font) "48px mononspace")
+  (r/set! (.. ctx -fillStyle) "rgba(0,0,0,0.5)")
+  (r/call! ctx (fillRect 150 200 500 120))
+  (r/set! (.. ctx -fillStyle) "white")
+  (r/call! ctx (fillText "CLICK TO START!"
+                         (- (/ w 2) 200)
+                         (+ (/ h 2) 20))))
+
 (defn flappy-bird-root
-  [ctx {:keys [terrain bird-y bird-x score]} {:keys [atlas w h]}]
+  [ctx {:keys [terrain bird-y bird-x score started]} {:keys [atlas w h]}]
   (r/call! ctx (clearRect 0 0 w h))
   (draw-background ctx atlas w h bird-x)
   (let [view-start (- bird-x bird-start-x)]
     (draw-terrain ctx atlas terrain view-start (+ w view-start) h))
   (draw-bird ctx atlas (- h bird-y))
-  (draw-score ctx score w))
+  (draw-score ctx score w)
+  (when-not started
+    (draw-click-to-start ctx w h)))
 
 ; Work with state:
 
@@ -123,9 +135,10 @@
     (r/listen! platform "keydown" clicks)
     (go-loop []
       (<! clicks)
-      (if (:finished @state)
-        (reset-state! state options)
-        (jump platform state options))
+      (cond
+        (:finished @state) (reset-state! state options)
+        (not (:started @state)) (swap! state assoc :started true)
+        :else (jump platform state options))
       (recur))))
 
 (defn renew-terrain
@@ -169,7 +182,7 @@
   [platform state options]
   (go-loop []
     (<! (timeout tick))
-    (when-not (:finished @state)
+    (when-not (or (:finished @state) (not (:started @state)))
       (swap! state update-state-on-timer options)
       (when (:finished @state)
         (r/play! platform (get-in options [:sounds :die]))))
@@ -185,13 +198,14 @@
                          :bird-y (/ w 2)
                          :bird-x bird-start-x
                          :score 0
-                         :finished false})
+                         :finished false
+                         :started false})
             options {:sounds {:die (<! (r/sound platform "assets/bird_die.ogg"))
                               :jump (<! (r/sound platform "assets/bird_jump.ogg"))}
                      :atlas (<! (r/image platform "/assets/bird.png"))
                      :w w
                      :h (.-height canvas)}]
-        (swap! state assoc :initial @state)
+        (swap! state assoc :initial (assoc @state :started true))
         (r/init! platform flappy-bird-root state options)
         (handle-clicks! platform state options)
         (handle-timer! platform state options))))
