@@ -7,6 +7,7 @@
                  [org.clojure/clojurescript "1.7.28"]
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
+                 [com.cognitect/transit-cljs "0.8.220"]
                  [figwheel-sidecar "0.3.7"]
                  [figwheel "0.3.7"]
                  [binaryage/devtools "0.3.0"]]

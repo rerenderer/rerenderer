@@ -1,24 +1,34 @@
-(ns rerenderer.android)
-;  (:require [cljs.core.match :refer-macros [match]]
-;            [clojure.string :refer [replace-first]]
-;            [rerenderer.core :refer [IPlatform]]))
-;
-;(defn send!
-;  [proxy calls]
-;  (.send proxy (.stringify js/JSON (clj->js calls))))
-;
-;(defn prepare-call
-;  [[[[who] [method & args]]]]
-;  [(replace-first who "-" "") method (or args)])
-;
-;(defn android
-;  [proxy]
-;  (let [platform-id (str (gensym))]
-;    (set! (.. proxy -platformId) platform-id)
-;    (reify IPlatform
-;      (render! [_ ctx]
-;        (when (= platform-id (.. proxy -platformId))
-;          (send! proxy
-;                 (for [[action & params] ctx
-;                       :when (= action :call)]
-;                   (prepare-call params))))))))
+(ns rerenderer.android
+  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require [cljs.core.async :refer [>! chan]]
+            [cognitect.transit :as t]
+            [rerenderer.core :as r :include-macros true]))
+
+(defmethod r/apply-script :android
+  [root-fn _]
+  (binding [r/*script* (atom [])]
+    (let [writer (t/writer :json)
+          root-id (root-fn)
+          serialised (t/write writer @r/*script*)]
+      (.render js/android serialised root-id))))
+
+(defmethod r/listen! :android
+  [event _]
+  (let [ch (chan)]
+    (.listen js/android (name event)
+             #(go (>! ch %)))
+    ch))
+
+(defmethod r/make-canvas! :android
+  [w h]
+  (r/new Bitmap w h "ALPHA_8"))
+
+(defprotocol IAndroid
+  (render-android [_ canvas]))
+
+(defmethod r/component->canvas :android
+  [component canvas]
+  (when-not (satisfies? IAndroid component)
+    (throw (js/Error. "Should implement IAndroid!")))
+  (let [canvas (r/new Canvas canvas)]
+    (render-android component canvas)))
