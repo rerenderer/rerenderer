@@ -36,7 +36,6 @@
       (render-browser [_ ctx]
         (r/set! (r/.. ctx -fillStyle) color)
         (r/.. ctx (fillRect 0 0 w h))
-        (println (r/render smile))
         (r/.. ctx (drawImage (r/render smile) 0 0))))))
 
 (let [options {:canvas (.getElementById js/document "canvas-1")}
