@@ -159,6 +159,7 @@ class RerendererView extends SurfaceView implements SurfaceHolder.Callback {
             public void handleMessage(Message m) {
             }
         });
+
     }
 
     public void surfaceCreated(SurfaceHolder holder) {
