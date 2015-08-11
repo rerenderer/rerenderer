@@ -25,12 +25,10 @@
     @pool))
 
 (defmethod r/apply-script :browser
-  [root-fn {:keys [canvas]}]
-  (binding [r/*script* (atom [])]
-    (let [ctx (.getContext canvas "2d")
-          root-id (root-fn)
-          pool (interprete @r/*script*)]
-      (.drawImage ctx (pool root-id) 0 0))))
+  [script root-id {:keys [canvas]}]
+  (let [ctx (.getContext canvas "2d")
+        pool (interprete script)]
+    (.drawImage ctx (pool root-id) 0 0)))
 
 (defmethod r/listen! :browser
   [event {:keys [canvas]}]

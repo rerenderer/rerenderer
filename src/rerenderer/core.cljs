@@ -1,4 +1,6 @@
-(ns ^:figwheel-always rerenderer.core)
+(ns ^:figwheel-always rerenderer.core
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]])
+  (:require [cljs.core.async :refer [chan <! >!]]))
 
 (def ^:dynamic *script* (atom []))
 
@@ -45,9 +47,20 @@
     (component->canvas component canvas)
     canvas))
 
+(defn render-ch
+  [root options]
+  (let [ch (chan)]
+    (go-loop [last-script []]
+      (reset! *script* [])
+      (let [root-id (render root (<! ch))]
+        (when-not (= last-script @*script*)
+          (apply-script @*script* root-id options)))
+      (recur @*script*))
+    ch))
+
 (defn init!
   [root state-atom options]
-  (apply-script #(render root @state-atom) options)
-  (add-watch state-atom :render
-             (fn [_ _ _ val]
-               (apply-script #(render root val) options))))
+  (let [ch (render-ch root options)]
+    (go (>! ch @state-atom))
+    (add-watch state-atom :render
+               #(go (>! ch %4)))))

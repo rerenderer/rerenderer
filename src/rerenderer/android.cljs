@@ -5,12 +5,10 @@
             [rerenderer.core :as r :include-macros true]))
 
 (defmethod r/apply-script :android
-  [root-fn _]
-  (binding [r/*script* (atom [])]
-    (let [writer (t/writer :json)
-          root-id (root-fn)
-          serialised (t/write writer @r/*script*)]
-      (.render js/android serialised root-id))))
+  [script root-id _]
+  (let [writer (t/writer :json)
+        serialised (t/write writer script)]
+    (.render js/android serialised root-id)))
 
 (defmethod r/listen! :android
   [event _]
