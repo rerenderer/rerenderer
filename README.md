@@ -23,35 +23,32 @@ And as a real canvas we can use browser canvas, android canvas
 Renders rectangle that changes colors on click:
 
 ```clojure
-(ns rerenderer.examples.simple
+(ns ^:figwheel-always rerenderer.examples.core
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
-  (:require [cljs.core.async :refer [chan <!]]
+  (:require [cljs.core.async :refer [<!]]
             [rerenderer.core :as r :include-macros true]
-            [rerenderer.browser :refer [browser]]))
+            [rerenderer.browser :refer [IBrowser]]))
 
-(defn root
-  [ctx {:keys [color]} {:keys [colors]}]
-  (r/set! (.. ctx -fillStyle) (get colors color))
-  (r/call! ctx (fillRect 50 50 100 100)))
+(defn rect
+  [{:keys [size color]}]
+  (let [[w h] size]
+    (reify
+      r/IComponent
+      (size [_] [w h])
+      IBrowser
+      (render-browser [_ ctx]
+        (r/set! (r/.. ctx -fillStyle) color)
+        (r/.. ctx (fillRect 0 0 w h))))))
 
-(defn handle-clicks!
-  [platform state {:keys [colors]}]
-  (let [clicks (chan)]
-    (r/listen! platform "click" clicks)
-    (go-loop []
-      (<! clicks)
-      (swap! state update-in [:color]
-             #(-> % inc (mod (count colors))))
-      (recur))))
-
-(defn init!
-  [canvas]
-  (let [platform (browser canvas)
-        state (atom {:color 0})
-        options {:colors ["red" "green" "blue"]}]
-    (r/init! platform root state options)
-    (handle-clicks! platform state options)))
-    
+(let [options {:canvas (.getElementById js/document "canvas-1")}
+      state (atom {:size [600 650]
+                   :color "red"})
+      click-ch (r/listen! :click options)]
+  (r/init! rect state options)
+  (go-loop [colors ["green" "yellow" "red"]]
+    (<! click-ch)
+    (swap! state assoc :color (first colors))
+    (recur (conj (vec (rest colors)) (first colors)))))    
 
 ```
 
