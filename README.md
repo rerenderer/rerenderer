@@ -44,7 +44,7 @@ Renders rectangle that changes colors on click:
       state (atom {:size [600 650]
                    :color "red"})
       click-ch (r/listen! :click options)]
-  (r/init! rect state options)
+  (r/init! :browser rect state options)
   (go-loop [colors ["green" "yellow" "red"]]
     (<! click-ch)
     (swap! state assoc :color (first colors))

@@ -4,25 +4,53 @@
             [cljs.core.async :refer [>! chan]]
             [rerenderer.core :as r :include-macros true]))
 
-(defn- run
-  [pool line]
-  (match line
-    [:new id :Image []] (swap! pool assoc id (js/Image.))
-    [:new id :Canvas []] (swap! pool assoc id
-                                (.createElement js/document "canvas"))
-    [:set var attr value] (aset (@pool var) attr (get @pool value value))
-    [:get id var attr] (swap! pool assoc id (aget (@pool var) attr))
-    [:call id var method args] (swap! pool assoc id
-                                      (.apply (aget (@pool var) method)
-                                              (@pool var)
-                                              (clj->js (mapv #(get @pool % %) args))))))
+(defn var-or-val
+  "Returns value of var named `value` or just `value`."
+  [vars value]
+  (get vars value value))
 
-(defn- interprete
+(defn create-instance
+  "Creates an instance of `cls` with `args` and puts it in `vars`."
+  [vars result-var cls args]
+  (let [prepared-args (mapv #(var-or-val vars %) args)
+        inst (match [cls prepared-args]
+               [:Image []] (js/Image.)
+               [:Canvas []] (.createElement js/document "canvas"))]
+    (assoc vars result-var inst)))
+
+(defn set-attr
+  "Sets `value` to `attr` of `var`."
+  [vars var attr value]
+  (aset (vars var) attr (var-or-val vars value))
+  vars)
+
+(defn get-attr
+  "Gets value of `attr` of `var` and puts it in `vars`."
+  [vars result-var var attr]
+  (assoc vars result-var (aget (vars var) attr)))
+
+(defn call-method
+  "Calls `method` of `var` with `args` and puts result in `vars`."
+  [vars result-var var method args]
+  (let [obj (vars var)
+        js-args (clj->js (mapv #(var-or-val vars %) args))
+        call-result (.apply (aget obj method) obj js-args)]
+    (assoc vars result-var call-result)))
+
+(defn interprete-line
+  "Interpretes a single `line` of script and returns changed `vars`."
+  [vars line]
+  (match line
+    [:new result-var cls args] (create-instance vars result-var cls args)
+    [:set var attr value] (set-attr vars var attr value)
+    [:get result-var var attr] (get-attr vars result-var var attr)
+    [:call result-var var method args] (call-method vars result-var var
+                                                    method args)))
+
+(defn interprete
+  "Interpretes `script` and returns hash-map with vars."
   [script]
-  (let [pool (atom {})]
-    (doseq [line script]
-      (run pool line))
-    @pool))
+  (reduce interprete-line {} script))
 
 (defmethod r/apply-script :browser
   [script root-id {:keys [canvas]}]

@@ -40,10 +40,10 @@
 
 (let [options {:canvas (.getElementById js/document "canvas-1")}
       state (atom {:size [600 650]
-                   :color "red"})
-      click-ch (r/listen! :click options)]
-  (r/init! rect state options)
-  (go-loop [colors ["green" "yellow" "red"]]
-    (<! click-ch)
-    (swap! state assoc :color (first colors))
-    (recur (conj (vec (rest colors)) (first colors)))))
+                   :color "red"})]
+  (r/init! :browser rect state options)
+  (let [click-ch (r/listen! :click options)]
+    (go-loop [colors ["green" "yellow" "red"]]
+      (<! click-ch)
+      (swap! state assoc :color (first colors))
+      (recur (conj (vec (rest colors)) (first colors))))))
