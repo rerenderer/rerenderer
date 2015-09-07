@@ -1,25 +1,39 @@
-(ns rerenderer.android
+(ns rerenderer.android ^:figwheel-always
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :refer [>! chan]]
+            [cljs.core.match :refer-macros [match]]
             [cognitect.transit :as t]
             [rerenderer.core :as r :include-macros true]))
 
+(def Bitmap$Config "Bitmap$Config")
+
+(defn transform-types
+  [line]
+  (println line)
+  (match line
+    [:new result-var cls args] [":new" (str result-var) (str cls) (vec args)]
+    [:get result-var var attr] [":get" (str result-var) (str var) (str attr)]
+    [:call result-var var method args] [":call" (str result-var)
+                                        (str var) (str method) (vec args)]))
+
 (defmethod r/apply-script :android
   [script root-id _]
-  (let [writer (t/writer :json)
+  (let [script (mapv transform-types script)
+        writer (t/writer :json)
         serialised (t/write writer script)]
-    (.render js/android serialised root-id)))
+    (.send js/android serialised root-id)))
 
 (defmethod r/listen! :android
   [event _]
   (let [ch (chan)]
-    (.listen js/android (name event)
-             #(go (>! ch %)))
+    ;(.listen js/android (name event)
+    ;         #(go (>! ch %)))
     ch))
 
 (defmethod r/make-canvas! :android
   [w h]
-  (r/new Bitmap w h "ALPHA_8"))
+  (r/.. 'android.graphics.Bitmap
+        (createBitmap w h (r/.. 'Bitmap.Config -RGBA_8888))))
 
 (defprotocol IAndroid
   (render-android [_ canvas]))

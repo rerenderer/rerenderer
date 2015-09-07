@@ -6,9 +6,13 @@
 
 (def platform (atom nil))
 
+(defn get-var
+  []
+  (str (gensym)))
+
 (defn rnew
   [cls & args]
-  (let [id (gensym)]
+  (let [id (get-var)]
     (swap! script conj [:new id cls (vec args)])
     id))
 
@@ -18,13 +22,13 @@
 
 (defn rget
   [var attr]
-  (let [id (gensym)]
+  (let [id (get-var)]
     (swap! script conj [:get id var attr])
     id))
 
 (defn rcall!
   [var method & args]
-  (let [id (gensym)]
+  (let [id (get-var)]
     (swap! script conj [:call id var method args])
     id))
 

@@ -10,15 +10,18 @@
                  [com.cognitect/transit-cljs "0.8.220"]
                  [figwheel-sidecar "0.3.7"]
                  [figwheel "0.3.7"]
-                 [binaryage/devtools "0.3.0"]]
+                 [binaryage/devtools "0.3.0"]
+                 [enlive "1.1.6"]
+                 [clj-http "2.0.0"]]
   :plugins [[lein-cljsbuild "1.0.6"]
             [lein-figwheel "0.3.7"]]
+  :source-paths ["src" "script"]
   :cljsbuild {:builds {:test {:source-paths ["test" "src"]
                               :compiler {:output-to "target/cljs-test.js"
                                          :optimizations :whitespace
                                          :pretty-print true}}
                        :examples {:source-paths ["src" "examples"]
-                                  :figwheel {:websocket-host "localhost"
+                                  :figwheel {:websocket-host "192.168.0.108"
                                              :on-jsload "rerenderer.examples.core/reload"}
                                   :compiler {:output-to "resources/public/compiled/examples.js"
                                              :output-dir "resources/public/compiled"

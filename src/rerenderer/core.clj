@@ -13,7 +13,7 @@
 (defn dot
   [x form]
   (if (symbol? form)
-    (if (= (first (name form)) "-")
+    (if (= (first (name form)) \-)
       `(rerenderer.core/rget ~x ~(attr-to-str form))
       `(rerenderer.core/rcall! ~x ~(name form)))
     `(rerenderer.core/rcall! ~x ~(name (first form)) ~@(rest form))))

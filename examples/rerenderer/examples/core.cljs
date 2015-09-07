@@ -3,7 +3,8 @@
   (:require [cljs.core.async :refer [<!]]
             [devtools.core :as devtools]
             [rerenderer.core :as r :include-macros true]
-            [rerenderer.browser :refer [IBrowser]]))
+            [rerenderer.browser :refer [IBrowser]]
+            [rerenderer.android :refer [IAndroid]]))
 
 (enable-console-print!)
 (devtools/install!)
@@ -36,12 +37,18 @@
       (render-browser [_ ctx]
         (r/set! (r/.. ctx -fillStyle) color)
         (r/.. ctx (fillRect 0 0 w h))
-        (r/.. ctx (drawImage (r/render smile) 0 0))))))
+        (r/.. ctx (drawImage (r/render smile) 0 0)))
+      IAndroid
+      (render-android [_ canvas]
+        (let [paint (r/new Paint)]
+          (r/.. paint (setARGB 0 255 0 0))
+          (r/.. canvas (drawRect 0 0 100 100 paint))
+          (println paint canvas "!!!!" js/android))))))
 
 (let [options {:canvas (.getElementById js/document "canvas-1")}
       state (atom {:size [600 650]
                    :color "red"})]
-  (r/init! :browser rect state options)
+  (r/init! :android rect state options)
   (let [click-ch (r/listen! :click options)]
     (go-loop [colors ["green" "yellow" "red"]]
       (<! click-ch)
