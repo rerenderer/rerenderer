@@ -1,5 +1,5 @@
 (ns generate-android
-  (:require [clojure.string :refer [split trim join]]
+  (:require [clojure.string :refer [split trim join] :as string]
             [clojure.java.io :refer [file writer]]
             [net.cgrand.enlive-html :as html]
             [clj-http.client :as http])
@@ -118,12 +118,32 @@
       :content
       first))
 
+(defn get-imports
+  [content]
+  (as-> content $
+        (html/select $ [:div#jd-content])
+        (first $)
+        (html/select $ [:a])
+        (html/select $ [(html/but (html/attr-contains :href "#"))])
+        (html/select $ [(html/attr-starts :href "/reference/")])
+        (map #(get-in % [:attrs :href]) $)
+        (filter #(not (re-find #"/(\w+)\.(\w+)\.html" %)) $)
+        (map #(string/replace % "/reference/" "") $)
+        (map #(string/replace % ".html" "") $)
+        (map #(string/replace % "/" ".") $)))
+
 (defn parse-class
   [content]
-  {:name (get-name content)
-   :constants (get-constants content)
-   :constructors (get-constructors content)
-   :methods (get-methods content)})
+  (let [name (get-name content)
+        imports (if (re-find #"\." name)
+                  (get-imports content)
+                  (conj (get-imports content)
+                        (format "android.graphics.%s" name)))]
+    {:constants (get-constants content)
+     :constructors (get-constructors content)
+     :methods (get-methods content)
+     :imports imports
+     :name name}))
 
 (defn parse-all
   [start-url]
@@ -132,9 +152,11 @@
 
 (defn make-imports
   [parsed]
-  (for [{:keys [name]} parsed
-        :when (not (re-find #"\." name))]
-    (format "import android.graphics.%s" name)))
+  (->> parsed
+       (map :imports)
+       flatten
+       set
+       (map #(format "import %s" %))))
 
 (defn kt-arg
   [n {:keys [type]}]
@@ -191,7 +213,7 @@ fun doGet(vars: Map<String, Any?>, data: Get): Any = when {
 
 (defn get-output-path
   []
-  (-> (meta #'-main)
+  (-> (meta #'render)
       :file
       file
       .getParentFile
