@@ -11,19 +11,13 @@ import android.graphics.Rasterizer
 import android.graphics.LinearGradient
 import android.graphics.BitmapShader
 import android.util.DisplayMetrics
-import java.lang.CharSequence
 import android.graphics.EmbossMaskFilter
-import java.lang.Throwable
 import android.graphics.Picture
 import android.graphics.PixelXorXfermode
 import android.graphics.Xfermode
-import java.lang.ref.ReferenceQueue
-import java.lang.Object
 import android.graphics.Typeface
 import android.graphics.PorterDuff
-import java.lang.Comparable
 import android.graphics.ColorFilter
-import java.lang.IllegalArgumentException
 import android.graphics.Rect
 import java.io.InputStream
 import android.graphics.BlurMaskFilter
@@ -32,19 +26,14 @@ import android.graphics.ComposePathEffect
 import android.graphics.LayerRasterizer
 import android.content.res.AssetManager
 import android.graphics.Matrix
-import java.lang.IllegalStateException
-import java.lang.Class
 import java.io.File
 import android.graphics.Path
-import java.lang.String
 import android.graphics.DrawFilter
 import android.graphics.RadialGradient
 import android.graphics.SumPathEffect
 import android.os.Parcelable
 import android.graphics.MaskFilter
-import java.lang.ArrayIndexOutOfBoundsException
 import android.graphics.Region
-import java.lang.Enum
 import java.util.Locale
 import android.graphics.AvoidXfermode
 import java.io.Closeable
@@ -226,9 +215,7 @@ fun doCall(vars: Map<String, Any?>, data: Call): Any = when {
     (data.objVar is Canvas && data.method == "drawText" && data.args.count() == 6) -> data.objVar.drawText(data.args.get(0) as String, data.args.get(1) as Int, data.args.get(2) as Int, data.args.get(3) as Float, data.args.get(4) as Float, data.args.get(5) as Paint)
     (data.objVar is Canvas && data.method == "drawTextOnPath" && data.args.count() == 5) -> data.objVar.drawTextOnPath(data.args.get(0) as String, data.args.get(1) as Path, data.args.get(2) as Float, data.args.get(3) as Float, data.args.get(4) as Paint)
     (data.objVar is Canvas && data.method == "drawTextOnPath" && data.args.count() == 7) -> data.objVar.drawTextOnPath(data.args.get(0) as CharArray, data.args.get(1) as Int, data.args.get(2) as Int, data.args.get(3) as Path, data.args.get(4) as Float, data.args.get(5) as Float, data.args.get(6) as Paint)
-    (data.objVar is Canvas && data.method == "drawTextRun" && data.args.count() == 9) -> data.objVar.drawTextRun(data.args.get(0) as CharSequence, data.args.get(1) as Int, data.args.get(2) as Int, data.args.get(3) as Int, data.args.get(4) as Int, data.args.get(5) as Float, data.args.get(6) as Float, data.args.get(7) as Boolean, data.args.get(8) as Paint)
-    (data.objVar is Canvas && data.method == "drawTextRun" && data.args.count() == 9) -> data.objVar.drawTextRun(data.args.get(0) as CharArray, data.args.get(1) as Int, data.args.get(2) as Int, data.args.get(3) as Int, data.args.get(4) as Int, data.args.get(5) as Float, data.args.get(6) as Float, data.args.get(7) as Boolean, data.args.get(8) as Paint)
-    (data.objVar is Canvas && data.method == "drawVertices" && data.args.count() == 12) -> data.objVar.drawVertices(data.args.get(0) as Canvas.VertexMode, data.args.get(1) as Int, data.args.get(2) as FloatArray, data.args.get(3) as Int, data.args.get(4) as FloatArray, data.args.get(5) as Int, data.args.get(6) as IntArray, data.args.get(7) as Int, data.args.get(8) as short[], data.args.get(9) as Int, data.args.get(10) as Int, data.args.get(11) as Paint)
+    (data.objVar is Canvas && data.method == "drawVertices" && data.args.count() == 12) -> data.objVar.drawVertices(data.args.get(0) as Canvas.VertexMode, data.args.get(1) as Int, data.args.get(2) as FloatArray, data.args.get(3) as Int, data.args.get(4) as FloatArray, data.args.get(5) as Int, data.args.get(6) as IntArray, data.args.get(7) as Int, data.args.get(8) as ShortArray, data.args.get(9) as Int, data.args.get(10) as Int, data.args.get(11) as Paint)
     (data.objVar is Canvas && data.method == "getClipBounds" && data.args.count() == 0) -> data.objVar.getClipBounds()
     (data.objVar is Canvas && data.method == "getClipBounds" && data.args.count() == 1) -> data.objVar.getClipBounds(data.args.get(0) as Rect)
     (data.objVar is Canvas && data.method == "getDensity" && data.args.count() == 0) -> data.objVar.getDensity()
@@ -340,7 +327,7 @@ fun doCall(vars: Map<String, Any?>, data: Call): Any = when {
     (data.objVar is RectF && data.method == "hashCode" && data.args.count() == 0) -> data.objVar.hashCode()
     (data.objVar is RectF && data.method == "height" && data.args.count() == 0) -> data.objVar.height()
     (data.objVar is RectF && data.method == "inset" && data.args.count() == 2) -> data.objVar.inset(data.args.get(0) as Float, data.args.get(1) as Float)
-    (data.objVar is RectF && data.method == "intersect" && data.args.count() == 4) -> data.objVar.intersect(data.args.get(0) as Float, data.args.get(1) as Float, data.args.get(2) as Float, data.args.get(3) as Float)
+    (data.objVar is RectF && data.method vel== "intersect" && data.args.count() == 4) -> data.objVar.intersect(data.args.get(0) as Float, data.args.get(1) as Float, data.args.get(2) as Float, data.args.get(3) as Float)
     (data.objVar is RectF && data.method == "intersect" && data.args.count() == 1) -> data.objVar.intersect(data.args.get(0) as RectF)
     (data.objVar is RectF && data.method == "intersects" && data.args.count() == 2) -> data.objVar.intersects(data.args.get(0) as RectF, data.args.get(1) as RectF)
     (data.objVar is RectF && data.method == "intersects" && data.args.count() == 4) -> data.objVar.intersects(data.args.get(0) as Float, data.args.get(1) as Float, data.args.get(2) as Float, data.args.get(3) as Float)
@@ -515,12 +502,8 @@ fun doCall(vars: Map<String, Any?>, data: Call): Any = when {
     (data.objVar is Paint && data.method == "getHinting" && data.args.count() == 0) -> data.objVar.getHinting()
     (data.objVar is Paint && data.method == "getLetterSpacing" && data.args.count() == 0) -> data.objVar.getLetterSpacing()
     (data.objVar is Paint && data.method == "getMaskFilter" && data.args.count() == 0) -> data.objVar.getMaskFilter()
-    (data.objVar is Paint && data.method == "getOffsetForAdvance" && data.args.count() == 7) -> data.objVar.getOffsetForAdvance(data.args.get(0) as CharSequence, data.args.get(1) as Int, data.args.get(2) as Int, data.args.get(3) as Int, data.args.get(4) as Int, data.args.get(5) as Boolean, data.args.get(6) as Float)
-    (data.objVar is Paint && data.method == "getOffsetForAdvance" && data.args.count() == 7) -> data.objVar.getOffsetForAdvance(data.args.get(0) as CharArray, data.args.get(1) as Int, data.args.get(2) as Int, data.args.get(3) as Int, data.args.get(4) as Int, data.args.get(5) as Boolean, data.args.get(6) as Float)
     (data.objVar is Paint && data.method == "getPathEffect" && data.args.count() == 0) -> data.objVar.getPathEffect()
     (data.objVar is Paint && data.method == "getRasterizer" && data.args.count() == 0) -> data.objVar.getRasterizer()
-    (data.objVar is Paint && data.method == "getRunAdvance" && data.args.count() == 7) -> data.objVar.getRunAdvance(data.args.get(0) as CharSequence, data.args.get(1) as Int, data.args.get(2) as Int, data.args.get(3) as Int, data.args.get(4) as Int, data.args.get(5) as Boolean, data.args.get(6) as Int)
-    (data.objVar is Paint && data.method == "getRunAdvance" && data.args.count() == 7) -> data.objVar.getRunAdvance(data.args.get(0) as CharArray, data.args.get(1) as Int, data.args.get(2) as Int, data.args.get(3) as Int, data.args.get(4) as Int, data.args.get(5) as Boolean, data.args.get(6) as Int)
     (data.objVar is Paint && data.method == "getShader" && data.args.count() == 0) -> data.objVar.getShader()
     (data.objVar is Paint && data.method == "getStrokeCap" && data.args.count() == 0) -> data.objVar.getStrokeCap()
     (data.objVar is Paint && data.method == "getStrokeJoin" && data.args.count() == 0) -> data.objVar.getStrokeJoin()
@@ -542,7 +525,6 @@ fun doCall(vars: Map<String, Any?>, data: Call): Any = when {
     (data.objVar is Paint && data.method == "getTextWidths" && data.args.count() == 4) -> data.objVar.getTextWidths(data.args.get(0) as CharArray, data.args.get(1) as Int, data.args.get(2) as Int, data.args.get(3) as FloatArray)
     (data.objVar is Paint && data.method == "getTypeface" && data.args.count() == 0) -> data.objVar.getTypeface()
     (data.objVar is Paint && data.method == "getXfermode" && data.args.count() == 0) -> data.objVar.getXfermode()
-    (data.objVar is Paint && data.method == "hasGlyph" && data.args.count() == 1) -> data.objVar.hasGlyph(data.args.get(0) as String)
     (data.objVar is Paint && data.method == "isAntiAlias" && data.args.count() == 0) -> data.objVar.isAntiAlias()
     (data.objVar is Paint && data.method == "isDither" && data.args.count() == 0) -> data.objVar.isDither()
     (data.objVar is Paint && data.method == "isElegantTextHeight" && data.args.count() == 0) -> data.objVar.isElegantTextHeight()

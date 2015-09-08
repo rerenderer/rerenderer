@@ -11,11 +11,13 @@
             "double" "Double"
             "char" "Char"
             "boolean" "Boolean"
+            "short" "Short"
             "int[]" "IntArray"
             "float[]" "FloatArray"
             "long[]" "LongArray"
             "double[]" "DoubleArray"
-            "char[]" "CharArray"})
+            "char[]" "CharArray"
+            "short[]" "ShortArray"})
 
 (defn get-links
   [content]
@@ -55,10 +57,11 @@
 
 (defn get-api-trs
   [content id]
-  (-> content
-      (html/select [id])
-      first
-      (html/select [:tr.api])))
+  (as-> content $
+        (html/select $ [id])
+        (first $)
+        (html/select $ [:tr.api])
+        (remove #(re-find #"apilevel-23" (get-in % [:attrs :class])) $)))
 
 (defn prepare-type
   [type]
@@ -130,7 +133,8 @@
         (filter #(not (re-find #"/(\w+)\.(\w+)\.html" %)) $)
         (map #(string/replace % "/reference/" "") $)
         (map #(string/replace % ".html" "") $)
-        (map #(string/replace % "/" ".") $)))
+        (map #(string/replace % "/" ".") $)
+        (remove #(re-find #"java\.lang" %) $)))
 
 (defn parse-class
   [content]
