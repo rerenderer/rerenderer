@@ -99,7 +99,6 @@
     <orderEntry type="library" exported="" name="transit-java-0.8.290" level="project" />
     <orderEntry type="library" exported="" name="json-simple-1.1.1" level="project" />
     <orderEntry type="library" exported="" name="jackson-core-2.3.2" level="project" />
-    <orderEntry type="library" exported="" name="groovy-2.4.4" level="project" />
     <orderEntry type="library" exported="" name="jackson-databind-2.3.2" level="project" />
     <orderEntry type="library" exported="" name="msgpack-0.6.10" level="project" />
     <orderEntry type="library" exported="" name="kotlin-stdlib-0.12.1230" level="project" />
@@ -108,6 +107,5 @@
     <orderEntry type="library" exported="" name="anko-0.6.3-15" level="project" />
     <orderEntry type="library" exported="" name="javassist-3.18.1-GA" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-23.0.0" level="project" />
-    <orderEntry type="library" exported="" name="kotlin-reflect-0.12.1230" level="project" />
   </component>
 </module>

@@ -41,12 +41,22 @@
       IAndroid
       (render-android [_ canvas]
         (let [paint (r/new Paint)]
-          (r/.. paint (setARGB 0 255 0 0))
-          (r/.. canvas (drawRect 0 0 100 100 paint))
+          (doseq [w (range 0 1080 50)
+                  h (range 0 1920 50)]
+            (if (zero? (mod (+ w h) 100))
+              (r/.. paint (setARGB 255 255 0 0))
+              (r/.. paint (setARGB 255 0 0 0)))
+            (r/.. canvas (drawRect w h (+ 50 w) (+ 50 h) paint)))
+          (r/.. paint (setARGB 255 0 255 0))
+          (r/.. paint (setTextSize 80))
+          (r/.. canvas (drawText "Generate with ClojureScript" 50 600 paint))
+          (r/.. paint (setARGB 255 0 255 255))
+          (r/.. canvas (drawText "Rendered with Kotlin" 100 900 paint))
+
           (println paint canvas "!!!!" js/android))))))
 
 (let [options {:canvas (.getElementById js/document "canvas-1")}
-      state (atom {:size [600 650]
+      state (atom {:size [1080 1920]
                    :color "red"})]
   (r/init! :android rect state options)
   (let [click-ch (r/listen! :click options)]

@@ -17,7 +17,7 @@ data class Get(val resultVar: String, val objVar: String, val attr: String)
 class Interpreter {
     val TAG = "INTERPRETE"
 
-    fun call(script: Collection<List<Any>>): Unit {
+    fun call(script: Collection<List<Any>>, rootId: String): Bitmap {
         val actions = script.map { line ->
             Log.d(TAG, line.toString())
             when (line.get(0)) {
@@ -37,29 +37,32 @@ class Interpreter {
                 else -> throw Exception("Unknown action $line")
             }
         }
-        val vars = actions.fold(mapOf<String, Any?>(), { vars, action ->
+        return actions.fold(mapOf<String, Any?>(), { vars, action ->
             interpeteLine(vars, action)
-        })
+        }).get(rootId) as Bitmap
     }
 
-    fun prepareArg(vars: Map<String, Any?>, arg: String): Any? = when (arg) {
+    fun prepareArg(vars: Map<String, Any?>, arg: Any?): Any? = when (arg) {
         is String -> vars.getOrElse(arg, { -> arg })
         else -> arg
     }
 
     fun prepareArgs(vars: Map<String, Any?>, args: List<Any?>): List<Any?> = args.map { arg ->
-        prepareArg(vars, arg as String)
+        prepareArg(vars, arg)
     }
 
-    fun interpeteLine(vars: Map<String, Any?>, line: Any): Map<String, Any?> = when (line) {
-        is New -> vars.plus(line.resultVar to doNew(
-                vars, line.copy(args = prepareArgs(vars, line.args))))
-        is Call -> vars.plus(line.resultVar to doCall(
-                vars, line.copy(
-                objVar = prepareArg(vars, line.objVar as String),
-                args = prepareArgs(vars, line.args))))
-        is Get -> vars.plus(line.resultVar to doGet(vars, line))
-        else -> vars
+    fun interpeteLine(vars: Map<String, Any?>, line: Any): Map<String, Any?> {
+        Log.d(TAG, line.toString())
+        return when (line) {
+            is New -> vars.plus(line.resultVar to doNew(
+                    vars, line.copy(args = prepareArgs(vars, line.args))))
+            is Call -> vars.plus(line.resultVar to doCall(
+                    vars, line.copy(
+                    objVar = prepareArg(vars, line.objVar as String),
+                    args = prepareArgs(vars, line.args))))
+            is Get -> vars.plus(line.resultVar to doGet(vars, line))
+            else -> vars
+        }
     }
 
 }

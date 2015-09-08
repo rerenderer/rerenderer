@@ -1,4 +1,5 @@
-(ns rerenderer.android ^:figwheel-always
+(ns rerenderer.android
+  ^:figwheel-always
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :refer [>! chan]]
             [cljs.core.match :refer-macros [match]]
@@ -11,7 +12,7 @@
   [line]
   (println line)
   (match line
-    [:new result-var cls args] [":new" (str result-var) (str cls) (vec args)]
+    [:new result-var cls args] [":new" (str result-var) (name cls) (vec args)]
     [:get result-var var attr] [":get" (str result-var) (str var) (str attr)]
     [:call result-var var method args] [":call" (str result-var)
                                         (str var) (str method) (vec args)]))
@@ -32,8 +33,8 @@
 
 (defmethod r/make-canvas! :android
   [w h]
-  (r/.. 'android.graphics.Bitmap
-        (createBitmap w h (r/.. 'Bitmap.Config -RGBA_8888))))
+  (r/.. 'Bitmap
+        (createBitmap w h (r/.. 'Bitmap$Config (valueOf "ARGB_8888")))))
 
 (defprotocol IAndroid
   (render-android [_ canvas]))

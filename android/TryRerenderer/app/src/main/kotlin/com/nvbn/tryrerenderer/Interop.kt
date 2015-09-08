@@ -10,7 +10,7 @@ import com.cognitect.transit.Writer
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
-class Interop(url: String, val onCall: (data: Collection<List<Any>>) -> Unit,
+class Interop(url: String, val onCall: (data: Collection<List<Any>>, rootId: String) -> Unit,
               context: Context) : WebView(context) {
     val TAG = "INTEROP"
 
@@ -18,13 +18,19 @@ class Interop(url: String, val onCall: (data: Collection<List<Any>>) -> Unit,
         @JavascriptInterface
         fun send(serialised: String, rootId: String) {
             val data = deserialise(serialised)
-            onCall(data)
+            onCall(data, rootId)
         }
 
         @JavascriptInterface
         fun listen(event: String, callback: Any) {
             Log.d(TAG, callback.toString())
         }
+
+        @JavascriptInterface
+        fun width(): Int = 1080
+
+        @JavascriptInterface
+        fun height(): Int = 1920
     }
 
     init {

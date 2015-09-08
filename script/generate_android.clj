@@ -17,7 +17,10 @@
             "long[]" "LongArray"
             "double[]" "DoubleArray"
             "char[]" "CharArray"
-            "short[]" "ShortArray"})
+            "short[]" "ShortArray"
+            "Object" "Any"})
+
+(def numeric ["Byte" "Short" "Int" "Long" "Float" "Double"])
 
 (defn get-links
   [content]
@@ -147,7 +150,8 @@
      :constructors (get-constructors content)
      :methods (get-methods content)
      :imports imports
-     :name name}))
+     :name name
+     :interop-name (string/replace name "." "\\$")}))
 
 (defn parse-all
   [start-url]
@@ -164,39 +168,57 @@
 
 (defn kt-arg
   [n {:keys [type]}]
-  (format "data.args.get(%d) as %s" n type))
+  (if (some #{type} numeric)
+    (format "anyTo%s(data.args.get(%d))" type n)
+    (format "data.args.get(%d) as %s" n type)))
 
 (defn make-constructors
-  [{:keys [constructors]}]
+  [{:keys [constructors interop-name]}]
   (for [{:keys [name args]} constructors
         :let [kt-args (map-indexed kt-arg args)]]
     (format "(data.cls == \"%s\" && data.args.count() == %d) -> %s(%s)"
-            name (count args) name (join ", " kt-args))))
+            interop-name (count args) name (join ", " kt-args))))
 
 (defn make-methods
-  [{:keys [name methods]}]
+  [{:keys [name interop-name methods]}]
   (for [{:keys [args static?] :as method} methods
         :let [kt-args (map-indexed kt-arg args)
               method (:name method)]]
     (if static?
       (format "(data.objVar == \"%s\" && data.method == \"%s\" && data.args.count() == %d) -> %s.%s(%s)"
-              name method (count args) name method (join ", " kt-args))
+              interop-name method (count args) name method (join ", " kt-args))
       (format "(data.objVar is %s && data.method == \"%s\" && data.args.count() == %d) -> data.objVar.%s(%s)"
               name method (count args) method (join ", " kt-args)))))
 
 (defn make-constans
-  [{:keys [constants name]}]
+  [{:keys [constants name interop-name]}]
   (for [const constants
         :let [const (:name const)]]
     (format "(data.objVar == \"%s\" && data.attr == \"%s\") -> %s.%s"
-            name const name const)))
+            interop-name const name const)))
+
+(defn get-numbers-convertor
+  [to]
+  (for [from numeric
+        :when (not= from to)]
+    (format "is %s -> x.to%s()" from to)))
+
+(defn get-numbers-convertors
+  []
+  (for [to numeric]
+    (format "fun anyTo%s(x: Any?): %s = when (x) {
+    %s
+    else -> x as %s
+}" to to (join "\n    " (get-numbers-convertor to)) to)))
 
 (defn render
-  [imports constructors methods constants]
+  [imports constructors methods constants convertors]
   (format "package com.nvbn.tryrerenderer
 
 %s
 
+
+%s
 
 fun doNew(vars: Map<String, Any?>, data: New): Any = when {
     %s
@@ -213,8 +235,9 @@ fun doGet(vars: Map<String, Any?>, data: Get): Any = when {
     else -> throw Exception(\"Can't get non-constant ${data.attr}\")
 }
 "
-          (join "\n" imports) (join "\n    " constructors)
-          (join "\n    " methods) (join "\n    " constants)))
+          (join "\n" imports) (join "\n\n" convertors)
+          (join "\n    " constructors) (join "\n    " methods)
+          (join "\n    " constants)))
 
 (defn get-output-path
   []
@@ -233,7 +256,9 @@ fun doGet(vars: Map<String, Any?>, data: Get): Any = when {
         constructors (flatten (mapv make-constructors parsed))
         methods (flatten (mapv make-methods parsed))
         constants (flatten (mapv make-constans parsed))
-        rendered (render imports constructors methods constants)
+        convertors (get-numbers-convertors)
+        rendered (render imports constructors methods constants
+                         convertors)
         path (get-output-path)]
     (with-open [out (writer path)]
       (.write out rendered))))
