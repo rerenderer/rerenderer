@@ -108,10 +108,10 @@
   (for [tr (get-api-trs content :#pubmethods)
         :let [[type-td descr-td] (html/select tr [:td])
               [nobr] (html/select descr-td [:nobr])
-              type (-> type-td :content first :content first trim prepare-type)]]
+              type (-> type-td :content first :content first trim)]]
     {:name (parse-name nobr)
      :args (parse-args nobr)
-     :type type
+     :type (prepare-type type)
      :static? (re-find #"static" type)}))
 
 (defn get-name
@@ -211,7 +211,8 @@ fun doCall(vars: Map<String, Any?>, data: Call): Any = when {
 fun doGet(vars: Map<String, Any?>, data: Get): Any = when {
     %s
     else -> throw Exception(\"Can't get non-constant ${data.attr}\")
-}"
+}
+"
           (join "\n" imports) (join "\n    " constructors)
           (join "\n    " methods) (join "\n    " constants)))
 
