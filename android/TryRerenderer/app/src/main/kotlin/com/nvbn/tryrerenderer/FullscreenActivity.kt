@@ -22,6 +22,7 @@ public class FullscreenActivity : Activity() {
                 { script, rootId ->
                     try {
                         view.render(interpreter.call(script, rootId))
+                    } catch (e: Stopped) {
                     } catch (e: Exception) {
                         Log.e(TAG, "Interpretation failed", e)
                     }

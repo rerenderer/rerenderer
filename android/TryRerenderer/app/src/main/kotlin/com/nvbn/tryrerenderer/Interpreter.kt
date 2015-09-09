@@ -14,10 +14,16 @@ data class Call(val resultVar: String, val objVar: Any?, val method: String,
 
 data class Get(val resultVar: String, val objVar: String, val attr: String)
 
+class Stopped: Exception() {}
+
 class Interpreter {
     val TAG = "INTERPRETE"
+    var callId = 0
 
     fun call(script: Collection<List<Any>>, rootId: String): Bitmap {
+        callId += 1
+        val currentCallId = callId
+
         val actions = script.map { line ->
             Log.d(TAG, line.toString())
             when (line.get(0)) {
@@ -38,6 +44,8 @@ class Interpreter {
             }
         }
         return actions.fold(mapOf<String, Any?>(), { vars, action ->
+            if (callId != currentCallId)
+                throw Stopped()
             interpeteLine(vars, action)
         }).get(rootId) as Bitmap
     }
