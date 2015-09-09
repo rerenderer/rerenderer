@@ -79,7 +79,13 @@
                                :y n
                                :color color
                                :width 50
-                               :height 50}))))
+                               :height 50}))
+               (p/text {:color [255 255 255 255]
+                        :width 800
+                        :height 800
+                        :x 200
+                        :y 200
+                        :font-size 150} "Hi There!")))
 
 (defn get-platform
   []
