@@ -179,16 +179,33 @@
     (format "(data.cls == \"%s\" && data.args.count() == %d) -> %s(%s)"
             interop-name (count args) name (join ", " kt-args))))
 
+(defn kt-arg-checker
+  [n {:keys [type]}]
+  (when-not (some #{type} numeric)
+    (format "data.args.get(%d) is %s" n type)))
+
+(defn kt-args-checkers
+  [args]
+  (let [checker (->> args
+                     (map-indexed kt-arg-checker)
+                     (remove nil?))]
+    (if (seq checker)
+      (str " && " (join " && " checker))
+      "")))
+
 (defn make-methods
   [{:keys [name interop-name methods]}]
   (for [{:keys [args static?] :as method} methods
         :let [kt-args (map-indexed kt-arg args)
+              kt-args-check (kt-args-checkers args)
               method (:name method)]]
     (if static?
-      (format "(data.objVar == \"%s\" && data.method == \"%s\" && data.args.count() == %d) -> %s.%s(%s)"
-              interop-name method (count args) name method (join ", " kt-args))
-      (format "(data.objVar is %s && data.method == \"%s\" && data.args.count() == %d) -> data.objVar.%s(%s)"
-              name method (count args) method (join ", " kt-args)))))
+      (format "(data.objVar == \"%s\" && data.method == \"%s\" && data.args.count() == %d %s) -> %s.%s(%s)"
+              interop-name method (count args) kt-args-check
+              name method (join ", " kt-args))
+      (format "(data.objVar is %s && data.method == \"%s\" && data.args.count() == %d %s) -> data.objVar.%s(%s)"
+              name method (count args) kt-args-check
+              method (join ", " kt-args)))))
 
 (defn make-constans
   [{:keys [constants name interop-name]}]
