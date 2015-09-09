@@ -1,4 +1,4 @@
-(ns rerenderer.browser
+(ns ^:figwheel-always rerenderer.browser
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.match :refer-macros [match]]
             [cljs.core.async :refer [>! chan]]

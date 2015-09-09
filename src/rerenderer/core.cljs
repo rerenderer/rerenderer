@@ -1,6 +1,6 @@
 (ns ^:figwheel-always rerenderer.core
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
-  (:require [cljs.core.async :refer [chan <! >!]]))
+  (:require [cljs.core.async :refer [chan <! >! sliding-buffer]]))
 
 (def script (atom []))
 
@@ -44,19 +44,18 @@
   (size [_]))
 
 (defn render
-  [component-fn & args]
-  (let [component (apply component-fn args)
-        [w h] (size component)
+  [component]
+  (let [[w h] (size component)
         canvas (make-canvas! w h)]
     (component->canvas component canvas)
     canvas))
 
 (defn render-ch
   [root options]
-  (let [ch (chan)]
+  (let [ch (chan (sliding-buffer 1))]
     (go-loop [last-script []]
       (reset! script [])
-      (let [root-id (render root (<! ch))]
+      (let [root-id (render (root (<! ch)))]
         (when-not (= last-script @script)
           (apply-script @script root-id options)))
       (recur @script))
