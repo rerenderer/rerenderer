@@ -11,8 +11,7 @@
 (defmethod render-childs :browser
   [ctx childs]
   (doseq [child (flatten childs)
-          :let [[x y] (position child)
-                _ (println x y "!!!")]]
+          :let [[x y] (position child)]]
     (r/.. ctx (drawImage (r/render child) x y))))
 
 (defmethod render-childs :android
