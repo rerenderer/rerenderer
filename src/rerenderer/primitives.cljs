@@ -3,23 +3,10 @@
             [rerenderer.android :refer [IAndroid]]
             [rerenderer.core :as r :include-macros true]))
 
-(defprotocol IPrimitive
-  (position [_]))
-
-(defmulti render-childs #(deref r/platform))
-
-(defmethod render-childs :browser
-  [ctx childs]
-  (doseq [child (flatten childs)
-          :let [[x y] (position child)]]
-    (r/.. ctx (drawImage (r/render child) x y))))
-
-(defmethod render-childs :android
-  [canvas childs]
-  (let [paint (r/new Paint)]
-    (doseq [child (flatten childs)
-            :let [[x y] (position child)]]
-      (r/.. canvas (drawBitmap (r/render child) x y paint)))))
+(defn render-childs
+  [parent childs]
+  (doseq [child (flatten childs)]
+    (r/render-to! child parent)))
 
 (defn rectangle
   [{:keys [width height color x y]
@@ -32,7 +19,6 @@
   (reify
     r/IComponent
     (size [_] [width height])
-    IPrimitive
     (position [_] [x y])
     IBrowser
     (render-browser [_ ctx]
@@ -61,7 +47,6 @@
   (reify
     r/IComponent
     (size [_] [width height])
-    IPrimitive
     (position [_] [x y])
     IBrowser
     (render-browser [_ ctx]

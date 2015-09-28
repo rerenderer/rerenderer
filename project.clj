@@ -21,7 +21,7 @@
                                          :optimizations :whitespace
                                          :pretty-print true}}
                        :examples {:source-paths ["src" "examples"]
-                                  :figwheel {:websocket-host "192.168.0.108"
+                                  :figwheel {:websocket-host "nvbn-XPS13-9333.local"
                                              :on-jsload "rerenderer.examples.core/reload"}
                                   :compiler {:output-to "resources/public/compiled/examples.js"
                                              :output-dir "resources/public/compiled"

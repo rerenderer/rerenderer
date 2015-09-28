@@ -7,7 +7,9 @@
 (defn var-or-val
   "Returns value of var named `value` or just `value`."
   [vars value]
-  (get vars value value))
+  (match value
+    [:var x] (get vars x)
+    [:val x] x))
 
 (defn create-instance
   "Creates an instance of `cls` with `args` and puts it in `vars`."
@@ -65,19 +67,24 @@
                        #(go (>! ch %)))
     ch))
 
-(defmethod r/make-canvas! :browser
-  [w h]
-  (let [canvas (r/new Canvas)]
-    (r/set! (r/.. canvas -width) w)
-    (r/set! (r/.. canvas -height) h)
-    canvas))
-
 (defprotocol IBrowser
   (render-browser [_ ctx]))
 
-(defmethod r/component->canvas :browser
-  [component canvas]
-  (when-not (satisfies? IBrowser component)
-    (throw (js/Error. "Should implement IBrowser!")))
-  (let [ctx (r/.. canvas (getContext "2d"))]
-    (render-browser component ctx)))
+(defmethod r/render! :browser
+  [component]
+  {:pre [(satisfies? r/IComponent component)
+         (satisfies? IBrowser component)]}
+  (let [[w h] (r/size component)
+        canvas (r/new Canvas)
+        ctx (r/.. canvas (getContext "2d"))]
+    (r/set! (r/.. canvas -width) w)
+    (r/set! (r/.. canvas -height) h)
+    (render-browser component ctx)
+    canvas))
+
+(defmethod r/render-to! :browser
+  [component ctx]
+  {:pre [(satisfies? r/IComponent component)
+         (satisfies? IBrowser component)]}
+  (let [[x y] (r/position component)]
+    (r/.. ctx (drawImage (r/render! component) x y))))

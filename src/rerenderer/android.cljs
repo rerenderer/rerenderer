@@ -31,17 +31,24 @@
     ;         #(go (>! ch %)))
     ch))
 
-(defmethod r/make-canvas! :android
-  [w h]
-  (r/.. 'Bitmap
-        (createBitmap w h (r/.. 'Bitmap$Config (valueOf "ARGB_8888")))))
-
 (defprotocol IAndroid
   (render-android [_ canvas]))
 
-(defmethod r/component->canvas :android
+(defmethod r/render! :android
+  [component]
+  {:pre [(satisfies? r/IComponent component)
+         (satisfies? IAndroid component)]}
+  (let [[w h] (r/size component)
+        colorspace (r/.. 'Bitmap$Config (valueOf "ARGB_8888"))
+        bitmap (r/.. 'Bitmap (createBitmap w h colorspace))
+        canvas (r/new Canvas bitmap)]
+    (render-android component canvas)
+    bitmap))
+
+(defmethod r/render-to! :android
   [component canvas]
-  (when-not (satisfies? IAndroid component)
-    (throw (js/Error. "Should implement IAndroid!")))
-  (let [canvas (r/new Canvas canvas)]
-    (render-android component canvas)))
+  {:pre [(satisfies? r/IComponent component)
+         (satisfies? IAndroid component)]}
+  (let [[x y] (r/position component)
+        paint (r/new Paint)]
+    (r/.. canvas (drawBitmap (r/render! component) x y paint))))

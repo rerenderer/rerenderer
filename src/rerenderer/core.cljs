@@ -1,6 +1,7 @@
 (ns ^:figwheel-always rerenderer.core
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
-  (:require [cljs.core.async :refer [chan <! >! sliding-buffer]]))
+  (:require [cljs.core.async :refer [chan <! >! sliding-buffer]]
+            [cljs.core.match :refer-macros [match]]))
 
 (def script (atom []))
 
@@ -8,54 +9,71 @@
 
 (defn get-var
   []
-  (str (gensym)))
+  (gensym))
 
+(defn prepare-arg
+  [arg]
+  (match arg
+    [:var _] arg
+    [:val _] arg
+    _ [:val arg]))
+
+(defn unpack-var
+  [var]
+  (match var
+    [:var x] x
+    _ var))
+
+; [:new result-var class [arguments]]
+; each argument can be [:var var] or [:val val]
 (defn rnew
   [cls & args]
   (let [id (get-var)]
-    (swap! script conj [:new id cls (vec args)])
-    id))
+    (swap! script conj [:new id cls (mapv prepare-arg args)])
+    [:var id]))
 
+; [:set var attr value]
+; value can be [:var var] or [:val val]
 (defn rset!
   [var attr value]
-  (swap! script conj [:set var attr value]))
+  (swap! script conj [:set (unpack-var var) attr (prepare-arg value)]))
 
+; [:get result-var var attr]
 (defn rget
   [var attr]
   (let [id (get-var)]
-    (swap! script conj [:get id var attr])
-    id))
+    (swap! script conj [:get id (unpack-var var) attr])
+    [:var id]))
 
+; [:call result-var var method [arguments]]
+; each argument can be [:var var] or [:val val]
 (defn rcall!
   [var method & args]
   (let [id (get-var)]
-    (swap! script conj [:call id var method args])
-    id))
+    (swap! script conj [:call id (unpack-var var)
+                        method (mapv prepare-arg args)])
+    [:var id]))
 
+
+; api-v2
 (defmulti apply-script #(deref platform))
 
 (defmulti listen! #(deref platform))
 
-(defmulti make-canvas! #(deref platform))
+(defmulti render! #(deref platform))
 
-(defmulti component->canvas #(deref platform))
+(defmulti render-to! #(deref platform))
 
 (defprotocol IComponent
-  (size [_]))
-
-(defn render
-  [component]
-  (let [[w h] (size component)
-        canvas (make-canvas! w h)]
-    (component->canvas component canvas)
-    canvas))
+  (size [_])
+  (position [_]))
 
 (defn render-ch
   [root options]
   (let [ch (chan (sliding-buffer 1))]
     (go-loop [last-script []]
       (reset! script [])
-      (let [root-id (render (root (<! ch)))]
+      (let [[_ root-id] (render! (root (<! ch)))]
         (when-not (= last-script @script)
           (apply-script @script root-id options)))
       (recur @script))
