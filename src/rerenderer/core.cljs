@@ -1,7 +1,9 @@
 (ns ^:figwheel-always rerenderer.core
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
-  (:require [cljs.core.async :refer [chan <! >! sliding-buffer]]
+  (:require [cljs.core.async :refer [chan <! >! sliding-buffer timeout]]
             [cljs.core.match :refer-macros [match]]))
+
+(def fps-limit 25)
 
 (def script (atom []))
 
@@ -72,6 +74,7 @@
   [root options]
   (let [ch (chan (sliding-buffer 1))]
     (go-loop [last-script []]
+      (<! (timeout (/ 1000 fps-limit)))
       (reset! script [])
       (let [[_ root-id] (render! (root (<! ch)))]
         (when-not (= last-script @script)

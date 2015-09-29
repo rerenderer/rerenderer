@@ -38,9 +38,9 @@
 
 (r/init! root state
          {:canvas (.getElementById js/document "canvas-1")})
-;
-;(go-loop []
-;  (<! (timeout 50))
-;  (swap! state update-in [:text-y] #(-> % (+ 10) (mod 1920)))
-;  (recur))
+
+(go-loop []
+  (<! (timeout 40))
+  (swap! state update-in [:text-y] #(-> % (+ 2) (mod 1920)))
+  (recur))
 
