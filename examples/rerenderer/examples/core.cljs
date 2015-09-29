@@ -29,17 +29,14 @@
                         :height 800
                         :x 200
                         :y text-y
-                        :font-size 150} "Hi There!")))
-
-(defn get-platform
-  []
-  (if (aget js/window "android")
-    :android
-    :browser))
+                        :font-size 150} "Hi There!")
+               (p/image {:width 200
+                         :height 500
+                         :src "bird"})))
 
 (def state (atom {:text-y 200}))
 
-(r/init! (get-platform) root state
+(r/init! root state
          {:canvas (.getElementById js/document "canvas-1")})
 ;
 ;(go-loop []

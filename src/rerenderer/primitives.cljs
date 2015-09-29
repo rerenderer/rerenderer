@@ -64,3 +64,22 @@
         (r/.. paint (setTextSize font-size))
         (r/.. canvas (drawText value x y paint)))
       (render-childs canvas childs))))
+
+(defn image
+  [{:keys [width height src x y]
+    :or {width 0
+         height 0
+         x 0
+         y 0}}
+   & childs]
+  (reify
+    r/IComponent
+    (size [_] [width height])
+    (position [_] [x y])
+    IBrowser
+    (render-browser [_ ctx]
+      (let [img (r/.. 'document (getElementById src))]
+        (r/.. ctx (drawImage img x y)))
+      (render-childs ctx childs))
+    IAndroid
+    (render-android [_ canvas])))

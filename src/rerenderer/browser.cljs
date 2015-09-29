@@ -16,7 +16,6 @@
   [vars result-var cls args]
   (let [prepared-args (mapv #(var-or-val vars %) args)
         inst (match [cls prepared-args]
-               [:Image []] (js/Image.)
                [:Canvas []] (.createElement js/document "canvas"))]
     (assoc vars result-var inst)))
 
@@ -52,7 +51,11 @@
 (defn interprete
   "Interpretes `script` and returns hash-map with vars."
   [script]
-  (reduce interprete-line {} script))
+  (reduce interprete-line {'document js/document} script))
+
+(defmethod r/get-platform :default
+  []
+  :browser)
 
 (defmethod r/apply-script :browser
   [script root-id {:keys [canvas]}]

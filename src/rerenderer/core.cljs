@@ -5,8 +5,6 @@
 
 (def script (atom []))
 
-(def platform (atom nil))
-
 (defn get-var
   []
   (gensym))
@@ -56,13 +54,15 @@
 
 
 ; api-v2
-(defmulti apply-script #(deref platform))
+(defmulti get-platform true?)
 
-(defmulti listen! #(deref platform))
+(defmulti apply-script get-platform)
 
-(defmulti render! #(deref platform))
+(defmulti listen! get-platform)
 
-(defmulti render-to! #(deref platform))
+(defmulti render! get-platform)
+
+(defmulti render-to! get-platform)
 
 (defprotocol IComponent
   (size [_])
@@ -80,8 +80,7 @@
     ch))
 
 (defn init!
-  [set-platform root state-atom options]
-  (reset! platform set-platform)
+  [root state-atom options]
   (let [ch (render-ch root options)]
     (go (>! ch @state-atom))
     (add-watch state-atom :render

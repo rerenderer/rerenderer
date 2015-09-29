@@ -17,6 +17,10 @@
     [:call result-var var method args] [":call" (str result-var)
                                         (str var) (str method) (vec args)]))
 
+(defmethod r/get-platform (aget js/window "android")
+  []
+  :browser)
+
 (defmethod r/apply-script :android
   [script root-id _]
   (let [script (mapv transform-types script)
