@@ -55,7 +55,7 @@
     [:var id]))
 
 
-; api-v2
+; should be implemented in platforms:
 (defmulti get-platform true?)
 
 (defmulti apply-script get-platform)
@@ -65,6 +65,8 @@
 (defmulti render! get-platform)
 
 (defmulti render-to! get-platform)
+
+; /
 
 (defprotocol IComponent
   (size [_])

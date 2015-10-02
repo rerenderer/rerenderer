@@ -169,20 +169,20 @@
 (defn kt-arg
   [n {:keys [type]}]
   (if (some #{type} numeric)
-    (format "anyTo%s(data.args.get(%d))" type n)
-    (format "data.args.get(%d) as %s" n type)))
+    (format "anyTo%s(args.get(%d))" type n)
+    (format "args.get(%d) as %s" n type)))
 
 (defn make-constructors
   [{:keys [constructors interop-name]}]
   (for [{:keys [name args]} constructors
         :let [kt-args (map-indexed kt-arg args)]]
-    (format "(data.cls == \"%s\" && data.args.count() == %d) -> %s(%s)"
+    (format "(cls == \"%s\" && args.count() == %d) -> %s(%s)"
             interop-name (count args) name (join ", " kt-args))))
 
 (defn kt-arg-checker
   [n {:keys [type]}]
   (when-not (some #{type} numeric)
-    (format "data.args.get(%d) is %s" n type)))
+    (format "args.get(%d) is %s" n type)))
 
 (defn kt-args-checkers
   [args]
@@ -200,10 +200,10 @@
               kt-args-check (kt-args-checkers args)
               method (:name method)]]
     (if static?
-      (format "(data.objVar == \"%s\" && data.method == \"%s\" && data.args.count() == %d %s) -> %s.%s(%s)"
+      (format "(objVar == \"%s\" && method == \"%s\" && args.count() == %d %s) -> %s.%s(%s)"
               interop-name method (count args) kt-args-check
               name method (join ", " kt-args))
-      (format "(data.objVar is %s && data.method == \"%s\" && data.args.count() == %d %s) -> data.objVar.%s(%s)"
+      (format "(objVar is %s && method == \"%s\" && args.count() == %d %s) -> objVar.%s(%s)"
               name method (count args) kt-args-check
               method (join ", " kt-args)))))
 
@@ -211,7 +211,7 @@
   [{:keys [constants name interop-name]}]
   (for [const constants
         :let [const (:name const)]]
-    (format "(data.objVar == \"%s\" && data.attr == \"%s\") -> %s.%s"
+    (format "(objVar == \"%s\" && attr == \"%s\") -> %s.%s"
             interop-name const name const)))
 
 (defn get-numbers-convertor
@@ -237,19 +237,19 @@
 
 %s
 
-fun doNew(vars: Map<String, Any?>, data: New): Any = when {
+fun doNew(vars: Map<String, Any?>, cls: String, args: List<Any?>): Any = when {
     %s
-    else -> throw Exception(\"Can't make instance of ${data.cls}\")
+    else -> throw Exception(\"Can't make instance of ${cls}\")
 }
 
-fun doCall(vars: Map<String, Any?>, data: Call): Any = when {
+fun doCall(vars: Map<String, Any?>, objVar: Any?, method: String, args: List<Any?>): Any = when {
     %s
-    else -> throw Exception(\"Can't call ${data.method}\")
+    else -> throw Exception(\"Can't call ${method}\")
 }
 
-fun doGet(vars: Map<String, Any?>, data: Get): Any = when {
+fun doGet(vars: Map<String, Any?>, objVar: String, attr: String): Any = when {
     %s
-    else -> throw Exception(\"Can't get non-constant ${data.attr}\")
+    else -> throw Exception(\"Can't get non-constant ${attr}\")
 }
 "
           (join "\n" imports) (join "\n\n" convertors)

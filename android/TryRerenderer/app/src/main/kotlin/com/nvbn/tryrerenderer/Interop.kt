@@ -62,7 +62,7 @@ class Interop(url: String, val onCall: (data: Collection<List<Any>>, rootId: Str
 
     fun sendEvent(event: Map<String, Any>) {
         val serialised = serialise(event)
-        evaluateJavascript("rerenderer.on_event($serialised);",
+        evaluateJavascript("onAndroidEvent($serialised);",
                 { result -> Log.d(TAG, result) })
     }
 }

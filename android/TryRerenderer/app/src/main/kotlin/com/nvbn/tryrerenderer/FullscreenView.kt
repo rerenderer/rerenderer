@@ -5,17 +5,18 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.Log
-import android.view.SurfaceHolder
-import android.view.SurfaceView
-import android.view.ViewManager
+import android.view.*
 import org.jetbrains.anko.holder
 
-class FullscreenView(context: Context) : SurfaceView(context), SurfaceHolder.Callback {
+class FullscreenView(context: Context) : SurfaceView(context), SurfaceHolder.Callback,
+        View.OnTouchListener {
+
     var lastRoot: Bitmap? = null
     val paint = Paint()
     val TAG = "FULLSCREEN_VIEW"
     var surfaceWidth = 0
     var surfaceHeight = 0
+    var propagate = {(x: Map<String, Any>) -> Unit}
 
     init {
         getHolder().addCallback(this)
@@ -52,5 +53,13 @@ class FullscreenView(context: Context) : SurfaceView(context), SurfaceHolder.Cal
             }
         }
         lastRoot = rootBitmap
+    }
+
+    override fun onTouch(v: View?, event: MotionEvent): Boolean {
+        propagate(mapOf(
+                "type" to "touch",
+                "x" to event.getX(),
+                "y" to event.getY()))
+        return true
     }
 }

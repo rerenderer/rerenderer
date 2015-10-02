@@ -4,9 +4,7 @@ import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import android.widget.FrameLayout
-import org.jetbrains.anko.button
-import org.jetbrains.anko.ctx
-import org.jetbrains.anko.frameLayout
+import org.jetbrains.anko.*
 
 
 public class FullscreenActivity : Activity() {
@@ -18,7 +16,7 @@ public class FullscreenActivity : Activity() {
         val view = FullscreenView(ctx)
         setContentView(view)
 
-        val interop = Interop("http://192.168.0.108:3449",
+        val interop = Interop(getHost(),
                 { script, rootId ->
                     try {
                         view.render(interpreter.call(script, rootId))
@@ -28,6 +26,19 @@ public class FullscreenActivity : Activity() {
                     }
                 },
                 ctx)
+        view.propagate = { x -> interop.sendEvent(x) }
     }
 
+    fun getHost(): String {
+        var host = "http://nvbn-XPS13-9333.local:3449"
+        alert("Enter host name:") {
+            customView {
+                val edit = editText(host)
+                positiveButton("Ok") {
+                    host = edit.getText().toString()
+                }
+            }
+        }.show()
+        return host
+    }
 }
