@@ -10,16 +10,14 @@
 
 (defn transform-types
   [line]
-  (println line)
   (match line
     [:new result-var cls args] [":new" (str result-var) (name cls) (vec args)]
     [:get result-var var attr] [":get" (str result-var) (str var) (str attr)]
     [:call result-var var method args] [":call" (str result-var)
-                                        (str var) (str method) (vec args)]))
+                                        (str var) (str method) (vec args)]
+    [:free var] [":free" (str var)]))
 
-(defmethod r/get-platform (aget js/window "android")
-  []
-  :browser)
+(defmethod r/get-platform (aget js/window "android") [] :browser)
 
 (defmethod r/apply-script :android
   [script root-id _]

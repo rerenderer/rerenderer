@@ -4,6 +4,8 @@
             [cljs.core.async :refer [>! chan]]
             [rerenderer.core :as r :include-macros true]))
 
+(def vars (atom {'document js/document}))
+
 (defn var-or-val
   "Returns value of var named `value` or just `value`."
   [vars value]
@@ -46,21 +48,21 @@
     [:set var attr value] (set-attr vars var attr value)
     [:get result-var var attr] (get-attr vars result-var var attr)
     [:call result-var var method args] (call-method vars result-var var
-                                                    method args)))
+                                                    method args)
+    [:free var] (dissoc vars var)))
 
 (defn interprete
   "Interpretes `script` and returns hash-map with vars."
   [script]
-  (reduce interprete-line {'document js/document} script))
+  (swap! vars #(reduce interprete-line % script)))
 
-(defmethod r/get-platform :default
-  []
-  :browser)
+(defmethod r/get-platform :default [] :browser)
 
 (defmethod r/apply-script :browser
   [script root-id {:keys [canvas]}]
   (let [ctx (.getContext canvas "2d")
         pool (interprete script)]
+    (println pool)
     (.drawImage ctx (pool root-id) 0 0)))
 
 (defmethod r/listen! :browser
