@@ -20,9 +20,8 @@
                               :compiler {:output-to "target/cljs-test.js"
                                          :optimizations :whitespace
                                          :pretty-print true}}
-                       :examples {:source-paths ["src" "examples"]
-                                  :figwheel {:websocket-host "nvbn-XPS13-9333.local"
-                                             :on-jsload "rerenderer.examples.core/reload"}
+                       :examples {:source-paths ["src" "examples" "test"]
+                                  :figwheel {:websocket-host "nvbn-XPS13-9333.local"}
                                   :compiler {:output-to "resources/public/compiled/examples.js"
                                              :output-dir "resources/public/compiled"
                                              :asset-path "/compiled"

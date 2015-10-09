@@ -43,13 +43,17 @@
 (defn interprete-line
   "Interpretes a single `line` of script and returns changed `vars`."
   [vars line]
-  (match line
-    [:new result-var cls args] (create-instance vars result-var cls args)
-    [:set var attr value] (set-attr vars var attr value)
-    [:get result-var var attr] (get-attr vars result-var var attr)
-    [:call result-var var method args] (call-method vars result-var var
-                                                    method args)
-    [:free var] (dissoc vars var)))
+  (try
+    (match line
+      [:new result-var cls args] (create-instance vars result-var cls args)
+      [:set var attr value] (set-attr vars var attr value)
+      [:get result-var var attr] (get-attr vars result-var var attr)
+      [:call result-var var method args] (call-method vars result-var var
+                                                      method args)
+      [:free var] (dissoc vars var))
+    (catch js/Error e
+      (println "Can't execute line " line)
+      (throw e))))
 
 (defn interprete
   "Interpretes `script` and returns hash-map with vars."
@@ -62,7 +66,6 @@
   [script root-id {:keys [canvas]}]
   (let [ctx (.getContext canvas "2d")
         pool (interprete script)]
-    (println pool)
     (.drawImage ctx (pool root-id) 0 0)))
 
 (defmethod r/listen! :browser

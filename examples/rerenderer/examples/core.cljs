@@ -29,17 +29,18 @@
                         :height 800
                         :x 200
                         :y text-y
-                        :font-size 150} "Hi There!")
+                        :font-size 150} "123 123 123 ")
                (p/image {:width 200
                          :height 500
-                         :src "bird"})))
+                         :src "bird"})
+               ))
 
 (def state (atom {:text-y 200}))
 
 (r/init! root state
          {:canvas (.getElementById js/document "canvas-1")})
 
-;(go-loop []
-;  (<! (timeout 40))
-;  (swap! state update-in [:text-y] #(-> % (+ 2) (mod 1920)))
-;  (recur))
+(go-loop []
+  (<! (timeout 40))
+  (swap! state update-in [:text-y] #(-> % (+ 2) (mod 1920)))
+  (recur))
