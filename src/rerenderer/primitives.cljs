@@ -66,11 +66,13 @@
       (render-childs canvas childs))))
 
 (defn image
-  [{:keys [width height src x y]
+  [{:keys [width height src x y sx sy]
     :or {width 0
          height 0
          x 0
-         y 0}}
+         y 0
+         sx 0
+         sy 0}}
    & childs]
   (reify
     r/IComponent
@@ -79,7 +81,7 @@
     IBrowser
     (render-browser [_ ctx]
       (let [img (r/.. 'document (getElementById src))]
-        (r/.. ctx (drawImage img x y)))
+        (r/.. ctx (drawImage img sx sy width height x y width height)))
       (render-childs ctx childs))
     IAndroid
     (render-android [_ canvas])))
