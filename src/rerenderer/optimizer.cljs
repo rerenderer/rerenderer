@@ -1,5 +1,6 @@
 (ns rerenderer.optimizer
-  (:require [cljs.core.match :refer-macros [match]]))
+  (:require [cljs.core.match :refer-macros [match]]
+            [cljs.pprint :refer [pprint]]))
 
 (defn expand-var
   "Converts vars to vals."
@@ -11,20 +12,22 @@
 (defn add-leaf
   "Adds new leaf to tree."
   [tree line]
-  (match line
-    [:new result-var cls args]
-    (assoc tree
-      result-var [:new cls (mapv #(expand-var tree %) args)])
-    [:set var attr value]
-    (update tree var conj [:set attr value])
-    [:get result-var var attr]
-    (assoc tree
-      result-var [:get (get tree var) attr])
-    [:call result-var var method args]
-    (-> tree
-        (assoc result-var [:call (get tree var) method
-                           (mapv #(expand-var tree %) args)])
-        (update var conj [:call method (mapv #(expand-var tree %) args)]))))
+  (let [prepaer-args (fn [args]
+                       (mapv #(expand-var tree %) args))]
+    (match line
+      [:new result-var cls args]
+      (assoc tree
+        result-var [:new cls (prepaer-args args)])
+      [:set var attr value]
+      (update tree var conj [:set attr value])
+      [:get result-var var attr]
+      (assoc tree
+        result-var [:get (get tree var) attr])
+      [:call result-var var method args]
+      (-> tree
+          (assoc result-var [:call (get tree var) method
+                             (prepaer-args args)])
+          (update var conj [:call method (prepaer-args args)])))))
 
 (defn build-tree
   "Builds tree for identifying unique items."
@@ -74,10 +77,17 @@
 
         line line))))
 
+(defn get-created
+  [cache new-cache]
+  (set (for [[k v] new-cache
+             :when (not (get cache k))]
+         v)))
+
 (defn reuse
-  [cache script]
+  [cache script root-id]
   (let [tree (build-tree script)
         new-cache (get-new-cache tree (ordered-vars script))
+        created (get-created cache new-cache)
         cache (merge new-cache cache)
-        created (set (vals new-cache))]
-    [new-cache (replace-with-cached script created cache tree)]))
+        root-id (get cache (get tree root-id) root-id)]
+    [cache (replace-with-cached script created cache tree) root-id]))

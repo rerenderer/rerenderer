@@ -58,6 +58,7 @@
 (defn interprete
   "Interpretes `script` and returns hash-map with vars."
   [script]
+  (println "Apply script with length" (count script))
   (swap! vars #(reduce interprete-line % script)))
 
 (defmethod r/get-platform :default [] :browser)

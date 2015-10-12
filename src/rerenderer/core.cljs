@@ -76,16 +76,13 @@
 (defn render-ch
   [root options]
   (let [ch (chan (sliding-buffer 1))]
-    (go-loop [last-script []
-              cache {}]
+    (go-loop [cache {}]
       (<! (timeout (/ 1000 fps-limit)))
       (reset! script [])
       (let [[_ root-id] (render! (root (<! ch)))]
-        (if (= @script last-script)
-          (recur @script cache)
-          (let [[cache current-script] (reuse cache @script)]
-            (apply-script current-script root-id options)
-            (recur @script cache)))))
+        (let [[cache current-script root-id] (reuse cache @script root-id)]
+          (apply-script current-script root-id options)
+          (recur cache))))
     ch))
 
 (defn init!

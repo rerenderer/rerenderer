@@ -6,4 +6,4 @@
 
 (enable-console-print!)
 
-(run-all-tests #"rerenderer.*-test")
+;(run-all-tests #"rerenderer.*-test")
