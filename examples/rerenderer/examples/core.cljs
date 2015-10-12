@@ -91,12 +91,12 @@
                   :x 200
                   :y 200})))
 
-(def state (atom {:text-y 200}))
+(def state (atom {:width 500}))
 
 (r/init! root state
          {:canvas (.getElementById js/document "canvas-1")})
 ;
-(go-loop []
-  (<! (timeout 100))
-  (swap! state update-in [:width] #(-> % (+ 2) (mod 1000)))
-  (recur))
+;(go-loop []
+;  (<! (timeout 50))
+;  (swap! state update-in [:width] #(-> % (+ 2) (mod 1000)))
+;  (recur))

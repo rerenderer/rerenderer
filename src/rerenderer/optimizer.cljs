@@ -77,11 +77,44 @@
 
         line line))))
 
+(defn ids-from-args
+  [args]
+  (for [[type value] args
+        :when (= :var type)]
+    value))
+
+(defn get-used-ids
+  [script]
+  (set (flatten (for [line script]
+                  (match line
+                    [:get result-var var & _] [result-var var]
+                    [:set var & _] var
+                    [:new result-var _ args] [result-var (ids-from-args args)]
+                    [:call result-var var _ args] [result-var var (ids-from-args args)])))))
+
+(defn get-non-used-ids
+  [used? cache]
+  (->> cache
+       vals
+       (remove used?)
+       set))
+
+(defn clean-cache
+  [used? cache]
+  (into {} (for [[k v] cache
+                 :when (used? v)]
+             [k v])))
+
 (defn get-created
   [cache new-cache]
   (set (for [[k v] new-cache
              :when (not (get cache k))]
          v)))
+
+(defn add-gc-stage
+  [script non-used-ids]
+  (concat script
+          (mapv #(vector :free %) non-used-ids)))
 
 (defn reuse
   [cache script root-id]
@@ -89,5 +122,11 @@
         new-cache (get-new-cache tree (ordered-vars script))
         created (get-created cache new-cache)
         cache (merge new-cache cache)
-        root-id (get cache (get tree root-id) root-id)]
-    [cache (replace-with-cached script created cache tree) root-id]))
+        root-id (get cache (get tree root-id) root-id)
+        script (replace-with-cached script created cache tree)
+        used-ids (get-used-ids script)
+        non-used-ids (get-non-used-ids used-ids cache)
+        script (add-gc-stage script non-used-ids)
+        cache (clean-cache used-ids cache)]
+    (pprint script)
+    [cache script root-id]))
