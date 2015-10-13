@@ -61,7 +61,8 @@
   (println "Apply script with length" (count script))
   (swap! vars #(reduce interprete-line % script)))
 
-(defmethod r/get-platform :default [] :browser)
+(when-not @r/platform
+  (reset! r/platform :browser))
 
 (defmethod r/apply-script :browser
   [script root-id {:keys [canvas]}]

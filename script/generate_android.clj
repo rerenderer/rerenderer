@@ -244,6 +244,7 @@ fun doNew(vars: Map<String, Any?>, cls: String, args: List<Any?>): Any = when {
 
 fun doCall(vars: Map<String, Any?>, objVar: Any?, method: String, args: List<Any?>): Any = when {
     %s
+    (objVar == \"RerendererLoader\" && method == \"bitmapFromUrl\" && args.count() == 1 && args.get(0) is String) -> RerendererLoader.bitmapFromUrl(args.get(0) as String)
     else -> throw Exception(\"Can't call ${method}\")
 }
 

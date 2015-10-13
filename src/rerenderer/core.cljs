@@ -57,7 +57,9 @@
 
 
 ; should be implemented in platforms:
-(defmulti get-platform true?)
+(def platform (atom nil))
+
+(defn get-platform [] @platform)
 
 (defmulti apply-script get-platform)
 

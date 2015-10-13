@@ -128,5 +128,4 @@
         non-used-ids (get-non-used-ids used-ids cache)
         script (add-gc-stage script non-used-ids)
         cache (clean-cache used-ids cache)]
-    (pprint script)
     [cache script root-id]))

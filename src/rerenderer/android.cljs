@@ -8,23 +8,31 @@
 
 (def Bitmap$Config "Bitmap$Config")
 
+(defn transform-args
+  [args]
+  (vec (for [arg args]
+         (match arg
+           [:var var] [":var" (str var)]
+           [:val val] [":val" val]))))
+
 (defn transform-types
   [line]
   (match line
-    [:new result-var cls args] [":new" (str result-var) (name cls) (vec args)]
+    [:new result-var cls args] [":new" (str result-var) (name cls) (transform-args args)]
     [:get result-var var attr] [":get" (str result-var) (str var) (str attr)]
     [:call result-var var method args] [":call" (str result-var)
-                                        (str var) (str method) (vec args)]
+                                        (str var) (str method) (transform-args args)]
     [:free var] [":free" (str var)]))
 
-(defmethod r/get-platform (aget js/window "android") [] :browser)
+(when (aget js/window "android")
+  (reset! r/platform :android))
 
 (defmethod r/apply-script :android
   [script root-id _]
   (let [script (mapv transform-types script)
         writer (t/writer :json)
         serialised (t/write writer script)]
-    (.send js/android serialised root-id)))
+    (.send js/android serialised (str root-id))))
 
 (defmethod r/listen! :android
   [event _]

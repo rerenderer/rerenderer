@@ -81,7 +81,11 @@
     IBrowser
     (render-browser [_ ctx]
       (let [img (r/.. 'document (getElementById src))]
-        (r/.. ctx (drawImage img sx sy width height x y width height)))
+        (r/.. ctx (drawImage img sx sy width height 0 0 width height)))
       (render-childs ctx childs))
     IAndroid
-    (render-android [_ canvas])))
+    (render-android [_ canvas]
+      (let [url (.. js/document (getElementById src) -src)
+            bitmap (r/.. 'RerendererLoader (bitmapFromUrl url))
+            clipped (r/.. 'Bitmap (createBitmap bitmap sx sy width height))]
+        (r/.. canvas (drawBitmap clipped 0 0 (r/new Paint)))))))
