@@ -89,4 +89,5 @@
       (let [url (.. js/document (getElementById src) -src)
             bitmap (r/.. 'RerendererLoader (bitmapFromUrl url))
             clipped (r/.. 'Bitmap (createBitmap bitmap sx sy width height))]
-        (r/.. canvas (drawBitmap clipped 0 0 (r/new Paint)))))))
+        (r/.. canvas (drawBitmap clipped 0 0 (r/new Paint)))
+        (render-childs canvas childs)))))
