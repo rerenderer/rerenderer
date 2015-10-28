@@ -5,7 +5,8 @@
 
 (defn render-childs
   [parent childs]
-  (doseq [child (flatten childs)]
+  (doseq [child (flatten childs)
+          :when (not (nil? child))]
     (r/render-to! child parent)))
 
 (defn rectangle
