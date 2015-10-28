@@ -58,7 +58,6 @@
 (defn interprete
   "Interpretes `script` and returns hash-map with vars."
   [script]
-  (println "Apply script with length" (count script))
   (swap! vars #(reduce interprete-line % script)))
 
 (when-not @r/platform
@@ -70,12 +69,17 @@
         pool (interprete script)]
     (.drawImage ctx (pool root-id) 0 0)))
 
+(defn translate-event
+  [event data]
+  (condp = event
+    :click [:click {:x (.-clientX data)
+                    :y (.-clientY data)}]
+    [event data]))
+
 (defmethod r/listen! :browser
-  [event {:keys [canvas]}]
-  (let [ch (chan)]
-    (.addEventListener canvas (name event)
-                       #(go (>! ch %)))
-    ch))
+  [ch event {:keys [canvas]}]
+  (.addEventListener canvas (name event)
+                     #(go (>! ch (translate-event event %)))))
 
 (defprotocol IBrowser
   (render-browser [_ ctx]))
