@@ -20,13 +20,12 @@
                               :compiler {:output-to "target/cljs-test.js"
                                          :optimizations :whitespace
                                          :pretty-print true}}
-                       :examples {:source-paths ["src" "examples" "test"]
+                       :examples {:source-paths ["src" "test"]
                                   :figwheel {:websocket-host "nvbn-XPS13-9333.local"}
-                                  :compiler {:output-to "resources/public/compiled/examples.js"
+                                  :compiler {:output-to "resources/public/compiled/main.js"
                                              :output-dir "resources/public/compiled"
                                              :asset-path "/compiled"
                                              :source-map true
-                                             :main "rerenderer.examples.core"
                                              :optimizations :none
                                              :pretty-print false}}}
               :test-commands {"test" ["phantomjs"
