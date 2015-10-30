@@ -1,0 +1,14 @@
+/target
+/classes
+/checkouts
+pom.xml
+pom.xml.asc
+*.jar
+*.class
+/.lein-*
+/.nrepl-port
+.idea
+resources/public/compiled
+resources/public/optimized.js
+*.log
+rerenderer.iml
