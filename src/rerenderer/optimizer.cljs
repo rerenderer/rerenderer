@@ -124,7 +124,7 @@
         cache (merge new-cache cache)
         root-id (get cache (get tree root-id) root-id)
         script (replace-with-cached script created cache tree)
-        used-ids (get-used-ids script)
+        used-ids (conj (get-used-ids script) root-id)
         non-used-ids (get-non-used-ids used-ids cache)
         script (add-gc-stage script non-used-ids)
         cache (clean-cache used-ids cache)]
