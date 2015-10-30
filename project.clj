@@ -1,6 +1,6 @@
 (defproject rerenderer "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "Simple platform agnostic react-like library for drawing on canvas, handling events and playing sounds."
+  :url "https://github.com/rerenderer/rerenderer"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.7.0"]
@@ -14,7 +14,12 @@
                  [enlive "1.1.6"]
                  [clj-http "2.0.0"]]
   :plugins [[lein-cljsbuild "1.0.6"]
-            [lein-figwheel "0.3.7"]]
+            [lein-figwheel "0.3.7"]
+            [lein-codox "0.9.0"]]
+  :codox {:language :clojurescript
+          :namespaces [rerenderer.core rerenderer.interop rerenderer.primitives]
+          :doc/format :markdown
+          :output-path "docs"}
   :source-paths ["src" "script"]
   :cljsbuild {:builds {:test {:source-paths ["test" "src"]
                               :compiler {:output-to "target/cljs-test.js"

@@ -1,8 +1,10 @@
-(ns ^:figwheel-always rerenderer.browser
+(ns ^:figwheel-always rerenderer.platform.browser
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.match :refer-macros [match]]
             [cljs.core.async :refer [>! chan]]
-            [rerenderer.core :as r :include-macros true]))
+            [rerenderer.interop :as r :include-macros true]
+            [rerenderer.platform.core :as platform]
+            [rerenderer.core :refer [IComponent size position]]))
 
 (def vars (atom {'document js/document}))
 
@@ -60,10 +62,10 @@
   [script]
   (swap! vars #(reduce interprete-line % script)))
 
-(when-not @r/platform
-  (reset! r/platform :browser))
+(when-not @platform/platform
+  (reset! platform/platform :browser))
 
-(defmethod r/apply-script :browser
+(defmethod platform/apply-script :browser
   [script root-id {:keys [canvas]}]
   (let [ctx (.getContext canvas "2d")
         pool (interprete script)]
@@ -76,7 +78,7 @@
                     :y (.-clientY data)}]
     [event data]))
 
-(defmethod r/listen! :browser
+(defmethod platform/listen! :browser
   [ch event {:keys [canvas]}]
   (.addEventListener canvas (name event)
                      #(go (>! ch (translate-event event %)))))
@@ -84,11 +86,11 @@
 (defprotocol IBrowser
   (render-browser [_ ctx]))
 
-(defmethod r/render! :browser
+(defmethod platform/render! :browser
   [component]
-  {:pre [(satisfies? r/IComponent component)
+  {:pre [(satisfies? IComponent component)
          (satisfies? IBrowser component)]}
-  (let [[w h] (r/size component)
+  (let [[w h] (size component)
         canvas (r/new Canvas)
         ctx (r/.. canvas (getContext "2d"))]
     (r/set! (r/.. canvas -width) w)
@@ -96,9 +98,9 @@
     (render-browser component ctx)
     canvas))
 
-(defmethod r/render-to! :browser
+(defmethod platform/render-to! :browser
   [component ctx]
-  {:pre [(satisfies? r/IComponent component)
+  {:pre [(satisfies? IComponent component)
          (satisfies? IBrowser component)]}
-  (let [[x y] (r/position component)]
-    (r/.. ctx (drawImage (r/render! component) x y))))
+  (let [[x y] (position component)]
+    (r/.. ctx (drawImage (platform/render! component) x y))))
