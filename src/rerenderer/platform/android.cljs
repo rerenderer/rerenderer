@@ -36,12 +36,21 @@
         serialised (t/write writer script)]
     (.send js/android serialised (str root-id))))
 
+(defn translate-event
+  [event serialised]
+  (let [reader (t/reader :json)
+        data (t/read reader serialised)]
+    (condp = event
+      :click [:click {:x (get data "x")
+                      :y (get data "y")}]
+      [event data])))
+
 (defmethod platform/listen! :android
-  [event _]
-  (let [ch (chan)]
-    ;(.listen js/android (name event)
-    ;         #(go (>! ch %)))
-    ch))
+  [ch event _]
+  (let [callback-name (str (gensym))]
+    (aset js/window callback-name
+          #(go (>! ch (translate-event event %)))
+          (.listen js/android (name event) callback-name))))
 
 (defprotocol IAndroid
   (render-android [_ canvas]))
