@@ -85,7 +85,8 @@
     IAndroid
     (render-android [_ canvas]
       (let [paint (r/new Paint)
-            [a r g b] color]
+            [a r g b] color
+            y (- height y)]
         (r/.. paint (setARGB a r g b))
         (r/.. paint (setTextSize font-size))
         (r/.. canvas (drawText value x y paint)))
