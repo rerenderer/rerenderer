@@ -48,9 +48,9 @@
 (defmethod platform/listen! :android
   [ch event _]
   (let [callback-name (str (gensym))]
-    (aset js/window callback-name
-          #(go (>! ch (translate-event event %)))
-          (.listen js/android (name event) callback-name))))
+    (aset js/document callback-name
+          #(go (>! ch (translate-event event %))))
+    (.listen js/android (name event) callback-name)))
 
 (defprotocol IAndroid
   (render-android [_ canvas]))
