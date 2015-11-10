@@ -169,20 +169,13 @@
 (defn kt-arg
   [n {:keys [type]}]
   (if (some #{type} numeric)
-    (format "anyTo%s(args.get(%d))" type n)
-    (format "args.get(%d) as %s" n type)))
-
-(defn make-constructors
-  [{:keys [constructors interop-name]}]
-  (for [{:keys [name args]} constructors
-        :let [kt-args (map-indexed kt-arg args)]]
-    (format "(cls == \"%s\" && args.count() == %d) -> %s(%s)"
-            interop-name (count args) name (join ", " kt-args))))
+    (format "anyTo%s(args[%d])" type n)
+    (format "args[%d] as %s" n type)))
 
 (defn kt-arg-checker
   [n {:keys [type]}]
   (when-not (some #{type} numeric)
-    (format "args.get(%d) is %s" n type)))
+    (format "args[%d] is %s" n type)))
 
 (defn kt-args-checkers
   [args]
@@ -228,6 +221,35 @@
     else -> x as %s
 }" to to (join "\n    " (get-numbers-convertor to)) to)))
 
+(defn make-constructors
+  [constructors]
+  (if (> (count constructors) 1)
+    (let [match-leafs (for [{:keys [name args]} constructors
+                            :let [kt-args (map-indexed kt-arg args)]]
+                        (format "(true%s) -> %s(%s)"
+                                (kt-args-checkers args) name (join ", " kt-args)))
+          {:keys [name]} (first constructors)]
+      (format "when {
+      %s
+      else -> throw Exception(\"Can't create %s wtih $args\")
+      }" (join "\n    " match-leafs) name))
+    (let [{:keys [name args]} (first constructors)
+          kt-args (map-indexed kt-arg args)]
+      (format "%s(%s)" name (join ", " kt-args)))))
+
+(defn make-contructors-map
+  [classes]
+  (let [constructors (flatten (for [{:keys [interop-name constructors]} classes
+                                    constructor constructors]
+                                (assoc constructor :interop-name interop-name)))
+        grouped (group-by (fn [{:keys [interop-name args]}]
+                            [interop-name (count args)])
+                          constructors)]
+    (for [[[interop-name args-count] group] grouped
+          :let [constructor-fn (make-constructors group)]]
+      (format "NewGroup(\"%s\", %d) to {args: List<Any?> ->  %s
+      }" interop-name args-count constructor-fn))))
+
 (defn render
   [imports constructors methods constants convertors]
   (format "package com.nvbn.tryrerenderer
@@ -237,14 +259,13 @@
 
 %s
 
-fun doNew(vars: Map<String, Any?>, cls: String, args: List<Any?>): Any = when {
+fun getNewMap(): Map<NewGroup, (args: List<Any?>) -> Any?> = mapOf(
     %s
-    else -> throw Exception(\"Can't make instance of ${cls}\")
-}
+)
 
 fun doCall(vars: Map<String, Any?>, objVar: Any?, method: String, args: List<Any?>): Any = when {
     %s
-    (objVar == \"RerendererLoader\" && method == \"bitmapFromUrl\" && args.count() == 1 && args.get(0) is String) -> RerendererLoader.bitmapFromUrl(args.get(0) as String)
+    (objVar == \"RerendererLoader\" && method == \"bitmapFromUrl\" && args.count() == 1 && args[0] is String) -> RerendererLoader.bitmapFromUrl(args[0] as String)
     else -> throw Exception(\"Can't call ${method}\")
 }
 
@@ -254,29 +275,24 @@ fun doGet(vars: Map<String, Any?>, objVar: String, attr: String): Any = when {
 }
 "
           (join "\n" imports) (join "\n\n" convertors)
-          (join "\n    " constructors) (join "\n    " methods)
+          (join ",\n    " constructors) (join "\n    " methods)
           (join "\n    " constants)))
 
 (defn get-output-path
-  []
-  (-> (meta #'render)
-      :file
-      file
-      .getParentFile
-      .getParent
-      (str "/android/TryRerenderer/app/src/main/kotlin/com/nvbn/tryrerenderer/gen.kt")))
+  [path]
+  (str path "/app/src/main/kotlin/com/nvbn/tryrerenderer/gen.kt"))
 
 (defn -main
-  [& args]
+  [path & args]
   (let [url "/reference/android/graphics/Canvas.html"
         parsed (parse-all url)
         imports (make-imports parsed)
-        constructors (flatten (mapv make-constructors parsed))
+        constructors (make-contructors-map parsed)
         methods (flatten (mapv make-methods parsed))
         constants (flatten (mapv make-constans parsed))
         convertors (get-numbers-convertors)
         rendered (render imports constructors methods constants
                          convertors)
-        path (get-output-path)]
+        path (get-output-path path)]
     (with-open [out (writer path)]
       (.write out rendered))))

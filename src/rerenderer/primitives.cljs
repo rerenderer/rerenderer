@@ -92,6 +92,10 @@
         (r/.. canvas (drawText value x y paint)))
       (render-childs canvas childs))))
 
+(def get-image-url
+  (memoize (fn [id]
+             (.. js/document (getElementById id) -src))))
+
 (defn image
   "Image primitive, can be nested:
 
@@ -123,7 +127,7 @@
       (render-childs ctx childs))
     IAndroid
     (render-android [_ canvas]
-      (let [url (.. js/document (getElementById src) -src)
+      (let [url (get-image-url src)
             bitmap (r/.. 'RerendererLoader (bitmapFromUrl url))
             clipped (r/.. 'Bitmap (createBitmap bitmap sx sy width height))]
         (r/.. canvas (drawBitmap clipped 0 0 (r/new Paint)))
