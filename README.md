@@ -22,10 +22,16 @@ or even iOS canvas (not implemented).
 
 ## Usage
 
+Create new project from template:
+
+```bash
+lein new rerenderer-game my-super-game
+```
+
 Renders rectangle that changes colors on click:
 
 ```clojure
-(ns rerenderer-example-flappy-bird.core
+(ns my-super-game.core
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:require [cljs.core.match :refer-macros [match]]
             [cljs.core.async :refer [<!]]
