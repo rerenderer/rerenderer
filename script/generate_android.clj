@@ -221,6 +221,8 @@
     else -> x as %s
 }" to to (join "\n    " (get-numbers-convertor to)) to)))
 
+; Constructors rendering:
+
 (defn make-constructors
   [constructors]
   (if (> (count constructors) 1)
@@ -245,10 +247,64 @@
         grouped (group-by (fn [{:keys [interop-name args]}]
                             [interop-name (count args)])
                           constructors)]
-    (for [[[interop-name args-count] group] grouped
-          :let [constructor-fn (make-constructors group)]]
+    (for [[[interop-name args-count] constructors] grouped]
       (format "NewGroup(\"%s\", %d) to {args: List<Any?> ->  %s
-      }" interop-name args-count constructor-fn))))
+      }" interop-name args-count (make-constructors constructors)))))
+
+; Methods rendering:
+
+(defn make-methods
+  [methods]
+  (if (> (count methods) 1)
+    (let [match-leafs (for [{:keys [name args type]} methods
+                            :let [kt-args (map-indexed kt-arg args)]]
+                        (format "(true%s) -> (objVar as %s).%s(%s)"
+                                (kt-args-checkers args)
+                                type name
+                                (join ", " kt-args)))
+          {:keys [name type]} (first methods)]
+      (format "when {
+      %s
+      else -> throw Exception(\"Can't call %s.%s wtih $args\")
+      }" (join "\n    " match-leafs) type name))
+    (let [{:keys [name args type]} (first methods)
+          kt-args (map-indexed kt-arg args)]
+      (format "(objVar as %s).%s(%s)" type name (join ", " kt-args)))))
+
+(defn make-static-methods
+  [methods]
+  (if (> (count methods) 1)
+    (let [match-leafs (for [{:keys [name args type interop-name]} methods
+                            :let [kt-args (map-indexed kt-arg args)]]
+                        (format "((objVar as String) == \"%s\"%s) -> %s.%s(%s)"
+                                interop-name
+                                (kt-args-checkers args)
+                                type name
+                                (join ", " kt-args)))
+          {:keys [name type]} (first methods)]
+      (format "when {
+      %s
+      else -> throw Exception(\"Can't call %s.%s wtih $args\")
+      }" (join "\n    " match-leafs) type name))
+    (let [{:keys [type name args]} (first methods)
+          kt-args (map-indexed kt-arg args)]
+      (format "%s.%s(%s)" type name (join ", " kt-args)))))
+
+(defn make-methods-map
+  [classes]
+  (let [methods (flatten (for [{:keys [interop-name name methods]} classes
+                               method methods]
+                           (assoc method :interop-name interop-name
+                                         :type name)))
+        grouped (group-by (fn [{:keys [type name args static?]}]
+                            [(if static? "java.lang.String" type) name (count args)])
+                          methods)]
+    (for [[[type name args-count] methods] grouped]
+      (format "CallGroup(%s::class.java, \"%s\", %d) to {objVar: Any?, args: List<Any?> -> %s}"
+              type name args-count
+              (if (= type "java.lang.String")
+                (make-static-methods methods)
+                (make-methods methods))))))
 
 (defn render
   [imports constructors methods constants convertors]
@@ -263,11 +319,12 @@ fun getNewMap(): Map<NewGroup, (args: List<Any?>) -> Any?> = mapOf(
     %s
 )
 
-fun doCall(vars: Map<String, Any?>, objVar: Any?, method: String, args: List<Any?>): Any = when {
-    %s
-    (objVar == \"RerendererLoader\" && method == \"bitmapFromUrl\" && args.count() == 1 && args[0] is String) -> RerendererLoader.bitmapFromUrl(args[0] as String)
-    else -> throw Exception(\"Can't call ${method}\")
-}
+fun getCallMap(): Map<CallGroup, (objVar: Any?, args: List<Any?>) -> Any?> = mapOf(
+    %s,
+    CallGroup(java.lang.String::class.java, \"bitmapFromUrl\", 1) to {objVar: Any?, args: List<Any?> ->
+      RerendererLoader.bitmapFromUrl(args[0] as String)
+    }
+)
 
 fun doGet(vars: Map<String, Any?>, objVar: String, attr: String): Any = when {
     %s
@@ -275,7 +332,7 @@ fun doGet(vars: Map<String, Any?>, objVar: String, attr: String): Any = when {
 }
 "
           (join "\n" imports) (join "\n\n" convertors)
-          (join ",\n    " constructors) (join "\n    " methods)
+          (join ",\n    " constructors) (join ",\n    " methods)
           (join "\n    " constants)))
 
 (defn get-output-path
@@ -288,7 +345,7 @@ fun doGet(vars: Map<String, Any?>, objVar: String, attr: String): Any = when {
         parsed (parse-all url)
         imports (make-imports parsed)
         constructors (make-contructors-map parsed)
-        methods (flatten (mapv make-methods parsed))
+        methods (make-methods-map parsed)
         constants (flatten (mapv make-constans parsed))
         convertors (get-numbers-convertors)
         rendered (render imports constructors methods constants

@@ -1,4 +1,4 @@
-(defproject rerenderer "0.1.0-SNAPSHOT"
+(defproject rerenderer "0.1.0"
   :description "Simple platform agnostic react-like library for drawing on canvas, handling events and playing sounds."
   :url "https://github.com/rerenderer/rerenderer"
   :license {:name "Eclipse Public License"
