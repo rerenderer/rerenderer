@@ -12,3 +12,4 @@ resources/public/compiled
 resources/public/optimized.js
 *.log
 rerenderer.iml
+docs
