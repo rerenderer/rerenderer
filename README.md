@@ -1,5 +1,7 @@
 # rerenderer
 
+[![Clojars Project](http://clojars.org/rerenderer/latest-version.svg)](http://clojars.org/rerenderer)
+
 [Documentation.](https://rerenderer.github.io/rerenderer/)
 
 Simple platform agnostic react-like library for drawing on canvas,
