@@ -1,4 +1,4 @@
-(defproject rerenderer "0.1.0"
+(defproject rerenderer "0.2.0-SNAPSHOT"
   :description "Simple platform agnostic react-like library for drawing on canvas, handling events and playing sounds."
   :url "https://github.com/rerenderer/rerenderer"
   :license {:name "Eclipse Public License"
@@ -11,9 +11,7 @@
   :source-paths ["src" "script"]
   :profiles {:dev {:dependencies [[figwheel-sidecar "0.3.7"]
                                   [figwheel "0.3.7"]
-                                  [binaryage/devtools "0.3.0"]
-                                  [enlive "1.1.6"]
-                                  [clj-http "2.0.0"]]
+                                  [binaryage/devtools "0.3.0"]]
                    :plugins [[lein-cljsbuild "1.0.6"]
                              [lein-figwheel "0.3.7"]
                              [lein-codox "0.9.0"]]
