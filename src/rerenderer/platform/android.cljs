@@ -3,7 +3,6 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :refer [>! chan]]
             [cljs.core.match :refer-macros [match]]
-            [cognitect.transit :as t]
             [rerenderer.interop :as r :include-macros true]
             [rerenderer.platform.core :as platform]
             [rerenderer.core :refer [IComponent size position]]))
@@ -32,14 +31,13 @@
 (defmethod platform/apply-script :android
   [script root-id _]
   (let [script (mapv transform-types script)
-        writer (t/writer :json)
-        serialised (t/write writer script)]
+        serialised (.stringify js/JSON (clj->js script))]
     (.send js/android serialised (str root-id))))
 
 (defn translate-event
   [event serialised]
-  (let [reader (t/reader :json)
-        data (t/read reader serialised)]
+  (let [data (js->clj (.parse js/JSON serialised)
+                      :keywordize-keys true)]
     (condp = event
       :click [:click {:x (get data "x")
                       :y (get data "y")}]

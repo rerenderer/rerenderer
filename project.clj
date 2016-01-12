@@ -7,7 +7,7 @@
                  [org.clojure/clojurescript "1.7.145"]
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [org.clojure/core.async "0.2.371"]
-                 [com.cognitect/transit-cljs "0.8.225"]]
+                 [org.clojure/data.json "0.2.6"]]
   :source-paths ["src" "script"]
   :profiles {:dev {:dependencies [[figwheel-sidecar "0.3.7"]
                                   [figwheel "0.3.7"]
