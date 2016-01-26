@@ -4,7 +4,8 @@
             [cljs.core.async :refer [>! chan]]
             [rerenderer.interop :as r :include-macros true]
             [rerenderer.platform.core :as platform]
-            [rerenderer.core :refer [IComponent size position]]))
+            [rerenderer.render.component :refer [IComponent]]
+            [rerenderer.render.node :refer [props INode component]]))
 
 (def vars (atom {'document js/document}))
 
@@ -87,20 +88,23 @@
   (render-browser [_ ctx]))
 
 (defmethod platform/render! :browser
-  [component]
-  {:pre [(satisfies? IComponent component)
-         (satisfies? IBrowser component)]}
-  (let [[w h] (size component)
+  [node]
+  {:pre [(satisfies? INode node)
+         (satisfies? IBrowser (component node))]}
+  (let [{:keys [width height]} (props node)
         canvas (r/new Canvas)
         ctx (r/.. canvas (getContext "2d"))]
-    (r/set! (r/.. canvas -width) w)
-    (r/set! (r/.. canvas -height) h)
-    (render-browser component ctx)
+    (r/set! (r/.. canvas -width) width)
+    (r/set! (r/.. canvas -height) height)
+    (render-browser (component node) ctx)
     canvas))
 
 (defmethod platform/render-to! :browser
-  [component ctx]
-  {:pre [(satisfies? IComponent component)
-         (satisfies? IBrowser component)]}
-  (let [[x y] (position component)]
-    (r/.. ctx (drawImage (platform/render! component) x y))))
+  [node canvas]
+  {:pre [(satisfies? INode node)
+         (satisfies? IBrowser (component node))]}
+  (let [{:keys [x y]} (props node)
+        node-canvas (platform/render! node)
+        ctx (r/.. canvas (getContext "2d"))]
+    (r/.. ctx (drawImage node-canvas x y))
+    node-canvas))

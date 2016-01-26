@@ -5,7 +5,8 @@
             [cljs.core.match :refer-macros [match]]
             [rerenderer.interop :as r :include-macros true]
             [rerenderer.platform.core :as platform]
-            [rerenderer.core :refer [IComponent size position]]))
+            [rerenderer.render.component :refer [IComponent]]
+            [rerenderer.render.node :refer [props]]))
 
 (def Bitmap$Config "Bitmap$Config")
 
@@ -57,9 +58,9 @@
   [component]
   {:pre [(satisfies? IComponent component)
          (satisfies? IAndroid component)]}
-  (let [[w h] (size component)
+  (let [{:keys [width height]} (props component)
         colorspace (r/.. 'Bitmap$Config (valueOf "ARGB_8888"))
-        bitmap (r/.. 'Bitmap (createBitmap w h colorspace))
+        bitmap (r/.. 'Bitmap (createBitmap width height colorspace))
         canvas (r/new Canvas bitmap)]
     (render-android component canvas)
     bitmap))
@@ -68,6 +69,6 @@
   [component canvas]
   {:pre [(satisfies? IComponent component)
          (satisfies? IAndroid component)]}
-  (let [[x y] (position component)
+  (let [{:keys [x y]} (props component)
         paint (r/new Paint)]
     (r/.. canvas (drawBitmap (platform/render! component) x y paint))))

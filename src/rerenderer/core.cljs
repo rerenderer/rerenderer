@@ -3,28 +3,27 @@
   (:require [cljs.core.async :refer [chan <! >! sliding-buffer timeout]]
             [cljs.core.match :refer-macros [match]]
             [rerenderer.optimizer :refer [reuse]]
-            [rerenderer.interop :refer [script]]
             [rerenderer.stats :refer [init-stats! update-stats!]]
-            [rerenderer.platform.core :as p]))
-
-(defprotocol ^:no-doc IComponent
-  (size [_])
-  (position [_]))
+            [rerenderer.platform.core :as p]
+            [rerenderer.render.core :refer [render-tree!]]))
 
 (defn ^:no-doc get-render-ch
   [root options]
   (let [ch (chan (sliding-buffer 1))]
-    (go-loop [cache {}]
+    (go-loop []
       (<! (timeout (/ 1000 (get options :fps-limit 25))))
-      (reset! script [])
-      (let [started (.getTime (js/Date.))
-            [_ root-id] (p/render! (root (<! ch)))]
-        (let [[cache current-script root-id] (reuse cache @script root-id)]
-          (p/apply-script current-script root-id options)
-          (when (:show-stats options)
-            (update-stats! (count current-script)
-                           (- (.getTime (js/Date.)) started)))
-          (recur cache))))
+      ;(reset! script [])
+      ;(let [started (.getTime (js/Date.))
+      ;      [_ root-id] (p/render! (root (<! ch)))]
+      ;  (let [[cache current-script root-id] (reuse cache @script root-id)]
+      ;    (p/apply-script current-script root-id options)
+      ;    (when (:show-stats options)
+      ;      (update-stats! (count current-script)
+      ;                     (- (.getTime (js/Date.)) started)))
+
+      ;(render-state (<! ch) root options)
+      (render-tree! (root (<! ch)) options)
+      (recur))
     ch))
 
 (defn init!
