@@ -1,4 +1,6 @@
 (ns rerenderer.render.component)
 
-(defprotocol ^:no-doc IComponent
-  (tag [this]))
+(defprotocol IComponent
+  (tag [this])
+  (childs [this])
+  (props [this]))

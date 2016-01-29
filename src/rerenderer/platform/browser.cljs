@@ -4,8 +4,7 @@
             [cljs.core.async :refer [>! chan]]
             [rerenderer.interop :as r :include-macros true]
             [rerenderer.platform.core :as platform]
-            [rerenderer.render.component :refer [IComponent]]
-            [rerenderer.render.node :refer [props INode component]]))
+            [rerenderer.render.component :refer [IComponent props]]))
 
 (def vars (atom {'document js/document}))
 
@@ -66,7 +65,7 @@
 (when-not @platform/platform
   (reset! platform/platform :browser))
 
-(defmethod platform/apply-script :browser
+(defmethod platform/apply-script! :browser
   [script root-id {:keys [canvas]}]
   (let [ctx (.getContext canvas "2d")
         pool (interprete script)]
@@ -87,24 +86,22 @@
 (defprotocol IBrowser
   (render-browser [_ ctx]))
 
-(defmethod platform/render! :browser
-  [node]
-  {:pre [(satisfies? INode node)
-         (satisfies? IBrowser (component node))]}
-  (let [{:keys [width height]} (props node)
+(defmethod platform/render :browser
+  [component]
+  {:pre [(satisfies? IComponent component)
+         (satisfies? IBrowser component)]}
+  (reset! r/script [])
+  (let [{:keys [width height]} (props component)
         canvas (r/new Canvas)
         ctx (r/.. canvas (getContext "2d"))]
     (r/set! (r/.. canvas -width) width)
     (r/set! (r/.. canvas -height) height)
-    (render-browser (component node) ctx)
-    canvas))
+    (render-browser component ctx)
+    (platform/->RenderResult @r/script canvas)))
 
-(defmethod platform/render-to! :browser
-  [node canvas]
-  {:pre [(satisfies? INode node)
-         (satisfies? IBrowser (component node))]}
-  (let [{:keys [x y]} (props node)
-        node-canvas (platform/render! node)
-        ctx (r/.. canvas (getContext "2d"))]
-    (r/.. ctx (drawImage node-canvas x y))
-    node-canvas))
+(defmethod platform/render-to :browser
+  [child parent]
+  (reset! r/script [])
+  (let [ctx (r/.. (:canvas parent) (getContext "2d"))]
+    (r/.. ctx (drawImage (:canvas child) (:x child) (:y child))))
+  @r/script)

@@ -1,10 +1,18 @@
 (ns rerenderer.primitives
   "Simple primitives for drawing. Using primitives is more preferd then
   creating components by yourself or operating with native-objects."
-  (:require [rerenderer.platform.browser :refer [IBrowser]]
+  (:require [clojure.string :as string]
+            [rerenderer.platform.browser :refer [IBrowser]]
             [rerenderer.platform.android :refer [IAndroid]]
             [rerenderer.interop :as r :include-macros true]
-            [rerenderer.render.component :refer [IComponent tag]]))
+            [rerenderer.render.component :refer [IComponent tag props childs]]))
+
+(defn primitive->string
+  [primitive]
+  (str "(" (tag primitive) " " (props primitive)
+       (string/join "\n" (map primitive->string (childs primitive)))
+       ")"))
+
 
 (defn rectangle
   "Rectangle primitive, can be nested:
@@ -23,13 +31,15 @@
          color [255 0 0 0]
          x 0
          y 0}
-    :as props}]
-  (println props "!!!")
+    :as props}
+   & childs]
   (reify
     Object
-    (toString [this] (str "<component" (tag this) " " props ">"))
+    (toString [this] (primitive->string this))
     IComponent
     (tag [_] "rectangle")
+    (childs [_] (flatten childs))
+    (props [_] props)
     IBrowser
     (render-browser [_ ctx]
       (let [[a r g b] color
@@ -63,12 +73,15 @@
          x 0
          y 0
          value ""}
-    :as props}]
+    :as props}
+   & childs]
   (reify
     Object
     (toString [this] (str "<component" (tag this) " " props ">"))
     IComponent
     (tag [_] "text")
+    (childs [_] childs)
+    (props [_] props)
     IBrowser
     (render-browser [_ ctx]
       (let [[a r g b] color
@@ -108,12 +121,15 @@
          y 0
          sx 0
          sy 0}
-    :as props}]
+    :as props}
+   & childs]
   (reify
     Object
     (toString [this] (str "<component" (tag this) " " props ">"))
     IComponent
     (tag [_] "image")
+    (childs [_] childs)
+    (props [_] props)
     IBrowser
     (render-browser [_ ctx]
       (let [img (r/.. 'document (getElementById src))]

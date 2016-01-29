@@ -5,7 +5,7 @@
             [rerenderer.optimizer :refer [reuse]]
             [rerenderer.stats :refer [init-stats! update-stats!]]
             [rerenderer.platform.core :as p]
-            [rerenderer.render.core :refer [render-tree!]]))
+            [rerenderer.render.core :refer [render-component!]]))
 
 (defn ^:no-doc get-render-ch
   [root options]
@@ -22,7 +22,7 @@
       ;                     (- (.getTime (js/Date.)) started)))
 
       ;(render-state (<! ch) root options)
-      (render-tree! (root (<! ch)) options)
+      (render-component! (root (<! ch)) options)
       (recur))
     ch))
 
@@ -39,6 +39,7 @@
   (let [render-ch (get-render-ch root-view options)
         event-ch (chan)
         state-atom (atom state)]
+    (println state)
     (when show-stats
       (init-stats!))
 

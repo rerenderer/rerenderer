@@ -5,8 +5,7 @@
             [cljs.core.match :refer-macros [match]]
             [rerenderer.interop :as r :include-macros true]
             [rerenderer.platform.core :as platform]
-            [rerenderer.render.component :refer [IComponent]]
-            [rerenderer.render.node :refer [props]]))
+            [rerenderer.render.component :refer [IComponent props]]))
 
 (def Bitmap$Config "Bitmap$Config")
 
@@ -29,7 +28,7 @@
 (when (aget js/window "android")
   (reset! platform/platform :android))
 
-(defmethod platform/apply-script :android
+(defmethod platform/apply-script! :android
   [script root-id _]
   (let [script (mapv transform-types script)
         serialised (.stringify js/JSON (clj->js script))]
@@ -54,7 +53,7 @@
 (defprotocol IAndroid
   (render-android [_ canvas]))
 
-(defmethod platform/render! :android
+(defmethod platform/render :android
   [component]
   {:pre [(satisfies? IComponent component)
          (satisfies? IAndroid component)]}
@@ -65,10 +64,10 @@
     (render-android component canvas)
     bitmap))
 
-(defmethod platform/render-to! :android
+(defmethod platform/render-to :android
   [component canvas]
   {:pre [(satisfies? IComponent component)
          (satisfies? IAndroid component)]}
   (let [{:keys [x y]} (props component)
         paint (r/new Paint)]
-    (r/.. canvas (drawBitmap (platform/render! component) x y paint))))
+    (r/.. canvas (drawBitmap (platform/render component) x y paint))))
