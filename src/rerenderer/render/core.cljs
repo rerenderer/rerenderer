@@ -1,28 +1,10 @@
 (ns rerenderer.render.core
-  (:require [rerenderer.platform.core :refer [apply-script! render-to]]
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]])
+  (:require [cljs.core.async :refer [chan <! sliding-buffer timeout]]
+            [rerenderer.platform.core :refer [apply-script! render-to]]
             [rerenderer.interop :refer [script]]
-            [rerenderer.render.node :refer [Component->Node]]))
-
-(def cache (atom {}))
-
-;(defn get-full-script
-;  [root]
-;  (loop [[render-node & rest-render-nodes] (render-node/childs root)
-;         result (render-node/script root)]
-;    (if render-node
-;      (if (cache (render-node/path render-node))
-;        (recur rest-render-nodes )
-;        (recur (concat (render-node/childs render-node) rest-render-nodes)
-;               (concat result (render-node/script render-node))))
-;      result)))
-;
-;(defn render-tree!
-;  [tree options]
-;  (let [node (->node tree)
-;        render-node (render-node/->render-node node)
-;        script (get-full-script render-node)
-;        [_ canvas-id] (render-node/canvas render-node)]
-;    (apply-script script canvas-id options)))
+            [rerenderer.render.node :refer [Component->Node]]
+            [rerenderer.optimizer :refer [gc]]))
 
 (defn render-childs
   [node]
@@ -42,6 +24,16 @@
 (defn render-component!
   [component options]
   (let [node (Component->Node component)
-        script (render-node node)
+        script (gc (render-node node))
         canvas (-> node :canvas last)]
     (apply-script! script canvas options)))
+
+
+(defn get-render-ch
+  [root options]
+  (let [ch (chan (sliding-buffer 1))]
+    (go-loop []
+      (<! (timeout (/ 1000 (get options :fps-limit 25))))
+      (render-component! (root (<! ch)) options)
+      (recur))
+    ch))
