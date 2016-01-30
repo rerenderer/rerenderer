@@ -24,8 +24,8 @@
 
              (rectangle {:width  20
                          :height 20
-                         :x      100
-                         :y      100
+                         :x      (:i state)
+                         :y      (:i state)
                          :color  [100 255 255 255]})))
 
 (defn event-handler

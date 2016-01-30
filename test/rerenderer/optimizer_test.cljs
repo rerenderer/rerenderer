@@ -1,6 +1,6 @@
-(ns ^:figwheel-always rerenderer.optimizer-test
+(ns ^:figwheel-always rerenderer.lang.gc-test
   (:require [cljs.test :refer-macros [deftest is testing are]]
-            [rerenderer.optimizer :as o]))
+            [rerenderer.lang.gc :as o]))
 
 (deftest test-expand-var
   (are [tree arg result] (= (o/expand-var tree arg) result)

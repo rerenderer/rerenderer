@@ -2,7 +2,7 @@
   (:require [cljs.test :refer-macros [run-all-tests]]
             ;[rerenderer.core-test]
             ;[rerenderer.browser-test]
-            [rerenderer.optimizer-test]))
+            [rerenderer.lang.gc-test]))
 
 (enable-console-print!)
 

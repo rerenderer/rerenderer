@@ -2,7 +2,7 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.match :refer-macros [match]]
             [cljs.core.async :refer [>! chan]]
-            [rerenderer.interop :as r :include-macros true]
+            [rerenderer.lang.interop :as r :include-macros true]
             [rerenderer.platform.core :as platform]
             [rerenderer.types.component :refer [IComponent props]]
             [rerenderer.types.render-result :refer [->RenderResult]]))

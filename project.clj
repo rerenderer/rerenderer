@@ -13,7 +13,7 @@
                              [lein-figwheel "0.5.0-5"]
                              [lein-codox "0.9.0"]]
                    :codox {:language :clojurescript
-                           :namespaces [rerenderer.core rerenderer.interop rerenderer.primitives]
+                           :namespaces [rerenderer.core rerenderer.lang.interop rerenderer.primitives]
                            :doc/format :markdown
                            :output-path "docs"}
                    :cljsbuild {:builds {

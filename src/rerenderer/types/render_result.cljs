@@ -25,3 +25,7 @@
     (swap! cache #(into {} (for [[k v] %
                                  :when (used? k)]
                              [k v])))))
+
+(defn get-cached
+  []
+  (map second (vals @cache)))

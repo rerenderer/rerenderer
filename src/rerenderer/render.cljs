@@ -2,10 +2,10 @@
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [cljs.core.async :refer [chan <! sliding-buffer timeout]]
             [rerenderer.platform.core :refer [apply-script! render-to]]
-            [rerenderer.interop :refer [script]]
+            [rerenderer.lang.interop :refer [script]]
             [rerenderer.types.node :refer [Component->Node]]
             [rerenderer.types.render-result :refer [sanitize-cache!]]
-            [rerenderer.optimizer :refer [gc]]))
+            [rerenderer.lang.gc :refer [gc]]))
 
 (defn render-childs
   [node]

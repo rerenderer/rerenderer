@@ -1,4 +1,4 @@
-(ns rerenderer.interop
+(ns rerenderer.lang.interop
   "Macros from this namespace should be used for interacting with objects
   in renderening functions. They should replace clojure's `..`, `new` and `set!`.
 
@@ -6,7 +6,7 @@
 
   ```
   (ns example
-    (:require [rerenderer.interop :as r :include-macros true]))
+    (:require [rerenderer.lang.interop :as r :include-macros true]))
 
   (let [canvas (r/new 'Canvas 100 200)]
     (r/set! (r/.. canvas -height) 300)
@@ -108,6 +108,6 @@
   (let [attr (-> path last name rest join)
         path (-> path butlast rest)
         obj (if (> (count path) 2)
-              `(rerenderer.interop/.. ~@path)
+              `(rerenderer.lang.interop/.. ~@path)
               (first path))]
     `(rset! ~obj ~attr ~value)))

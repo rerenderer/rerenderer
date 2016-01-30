@@ -3,7 +3,7 @@
   creating components by yourself or operating with native-objects."
   (:require [rerenderer.platform.browser :refer [IBrowser]]
             [rerenderer.platform.android :refer [IAndroid]]
-            [rerenderer.interop :as r :include-macros true]
+            [rerenderer.lang.interop :as r :include-macros true]
             [rerenderer.types.component :refer [IComponent tag props childs
                                                 component->string]]))
 
