@@ -1,18 +1,11 @@
 (ns rerenderer.primitives
   "Simple primitives for drawing. Using primitives is more preferd then
   creating components by yourself or operating with native-objects."
-  (:require [clojure.string :as string]
-            [rerenderer.platform.browser :refer [IBrowser]]
+  (:require [rerenderer.platform.browser :refer [IBrowser]]
             [rerenderer.platform.android :refer [IAndroid]]
             [rerenderer.interop :as r :include-macros true]
-            [rerenderer.render.component :refer [IComponent tag props childs]]))
-
-(defn primitive->string
-  [primitive]
-  (str "(" (tag primitive) " " (props primitive)
-       (string/join "\n" (map primitive->string (childs primitive)))
-       ")"))
-
+            [rerenderer.types.component :refer [IComponent tag props childs
+                                                component->string]]))
 
 (defn rectangle
   "Rectangle primitive, can be nested:
@@ -35,7 +28,7 @@
    & childs]
   (reify
     Object
-    (toString [this] (primitive->string this))
+    (toString [this] (component->string this))
     IComponent
     (tag [_] "rectangle")
     (childs [_] (flatten childs))

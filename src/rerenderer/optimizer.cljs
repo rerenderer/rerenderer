@@ -2,15 +2,6 @@
   (:require [cljs.core.match :refer-macros [match]]
             [cljs.pprint :refer [pprint]]))
 
-(def nodes-cache (atom {}))
-
-(defn update-cache!
-  [node]
-  (loop [[node & rest-nodes] [node]]
-    (when node
-      (swap! nodes-cache assoc (:path node) (:canvas node))
-      (recur (concat (:childs node) rest-nodes)))))
-
 (def vars-cache (atom []))
 
 (defn var-ids-from-args

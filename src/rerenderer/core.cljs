@@ -3,7 +3,7 @@
   (:require [cljs.core.async :refer [chan >!]]
             [rerenderer.stats :refer [init-stats! update-stats!]]
             [rerenderer.platform.core :refer [listen!]]
-            [rerenderer.render.core :refer [render-component! get-render-ch]]))
+            [rerenderer.render :refer [render-component! get-render-ch]]))
 
 (defn init!
   "Initializes new rernderer application, required params:

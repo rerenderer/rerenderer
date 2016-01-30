@@ -4,7 +4,8 @@
             [cljs.core.async :refer [>! chan]]
             [rerenderer.interop :as r :include-macros true]
             [rerenderer.platform.core :as platform]
-            [rerenderer.render.component :refer [IComponent props]]))
+            [rerenderer.types.component :refer [IComponent props]]
+            [rerenderer.types.render-result :refer [->RenderResult]]))
 
 (def vars (atom {'document js/document}))
 
@@ -76,8 +77,8 @@
   (condp = event
     "click" [:click {:x (.-clientX data)
                      :y (.-clientY data)}]
-    "keydown" [:keydown {:key-code (.-keyCode data)}]
-    "keyup" [:keyup {:key-code (.-keyCode data)}]
+    "keydown" [:keydown {:keycode (.-keyCode data)}]
+    "keyup" [:keyup {:keycode (.-keyCode data)}]
     [event data]))
 
 (defmethod platform/listen! :browser
@@ -103,7 +104,7 @@
     (r/set! (r/.. canvas -width) width)
     (r/set! (r/.. canvas -height) height)
     (render-browser component ctx)
-    (platform/->RenderResult @r/script canvas)))
+    (->RenderResult @r/script canvas)))
 
 (defmethod platform/render-to :browser
   [child parent]

@@ -1,10 +1,11 @@
-(ns rerenderer.render.core
+(ns rerenderer.render
   (:require-macros [cljs.core.async.macros :refer [go go-loop]])
   (:require [cljs.core.async :refer [chan <! sliding-buffer timeout]]
             [rerenderer.platform.core :refer [apply-script! render-to]]
             [rerenderer.interop :refer [script]]
-            [rerenderer.render.node :refer [Component->Node]]
-            [rerenderer.optimizer :refer [gc update-cache!]]))
+            [rerenderer.types.node :refer [Component->Node]]
+            [rerenderer.types.render-result :refer [sanitize-cache!]]
+            [rerenderer.optimizer :refer [gc]]))
 
 (defn render-childs
   [node]
@@ -26,7 +27,7 @@
   (let [node (Component->Node component)
         script (gc (render-node node))
         canvas (-> node :canvas last)]
-    (update-cache! node)
+    (sanitize-cache! node)
     (apply-script! script canvas options)))
 
 

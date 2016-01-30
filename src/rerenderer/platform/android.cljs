@@ -5,7 +5,7 @@
             [cljs.core.match :refer-macros [match]]
             [rerenderer.interop :as r :include-macros true]
             [rerenderer.platform.core :as platform]
-            [rerenderer.render.component :refer [IComponent props]]))
+            [rerenderer.types.component :refer [IComponent props]]))
 
 (def Bitmap$Config "Bitmap$Config")
 
