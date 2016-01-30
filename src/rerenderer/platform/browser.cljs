@@ -12,15 +12,15 @@
   "Returns value of var named `value` or just `value`."
   [vars value]
   (match value
-    [:var x] (get vars x)
-    [:val x] x))
+         [:var x] (get vars x)
+         [:val x] x))
 
 (defn create-instance
   "Creates an instance of `cls` with `args` and puts it in `vars`."
   [vars result-var cls args]
   (let [prepared-args (mapv #(var-or-val vars %) args)
         inst (match [cls prepared-args]
-               [:Canvas []] (.createElement js/document "canvas"))]
+                    [:Canvas []] (.createElement js/document "canvas"))]
     (assoc vars result-var inst)))
 
 (defn set-attr
@@ -47,12 +47,12 @@
   [vars line]
   (try
     (match line
-      [:new result-var cls args] (create-instance vars result-var cls args)
-      [:set var attr value] (set-attr vars var attr value)
-      [:get result-var var attr] (get-attr vars result-var var attr)
-      [:call result-var var method args] (call-method vars result-var var
-                                                      method args)
-      [:free var] (dissoc vars var))
+           [:new result-var cls args] (create-instance vars result-var cls args)
+           [:set var attr value] (set-attr vars var attr value)
+           [:get result-var var attr] (get-attr vars result-var var attr)
+           [:call result-var var method args] (call-method vars result-var var
+                                                           method args)
+           [:free var] (dissoc vars var))
     (catch js/Error e
       (println "Can't execute line " line)
       (throw e))))
@@ -74,14 +74,20 @@
 (defn translate-event
   [event data]
   (condp = event
-    :click [:click {:x (.-clientX data)
-                    :y (.-clientY data)}]
+    "click" [:click {:x (.-clientX data)
+                     :y (.-clientY data)}]
+    "keydown" [:keydown {:key-code (.-keyCode data)}]
+    "keyup" [:keyup {:key-code (.-keyCode data)}]
     [event data]))
 
 (defmethod platform/listen! :browser
-  [ch event {:keys [canvas]}]
-  (.addEventListener canvas (name event)
-                     #(go (>! ch (translate-event event %)))))
+  [ch {:keys [canvas]}]
+  (doseq [event-name ["click" "keydown" "keyup"]]
+    (.addEventListener canvas event-name
+                       (fn [event]
+                         (.preventDefault event)
+                         (go (>! ch (translate-event event-name event)))
+                         false))))
 
 (defprotocol IBrowser
   (render-browser [_ ctx]))
