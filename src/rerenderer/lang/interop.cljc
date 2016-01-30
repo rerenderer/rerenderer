@@ -111,3 +111,11 @@
               `(rerenderer.lang.interop/.. ~@path)
               (first path))]
     `(rset! ~obj ~attr ~value)))
+
+(defmacro recording
+  [script-var & body]
+  `(do (reset! script [])
+       (let [~script-var script
+             result# (do ~@body)]
+         (reset! script [])
+         result#)))

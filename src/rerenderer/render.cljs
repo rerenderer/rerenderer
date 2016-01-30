@@ -1,8 +1,7 @@
 (ns rerenderer.render
-  (:require-macros [cljs.core.async.macros :refer [go go-loop]])
+  (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:require [cljs.core.async :refer [chan <! sliding-buffer timeout]]
             [rerenderer.platform.core :refer [apply-script! render-to]]
-            [rerenderer.lang.interop :refer [script]]
             [rerenderer.types.node :refer [Component->Node]]
             [rerenderer.types.render-result :refer [sanitize-cache!]]
             [rerenderer.lang.gc :refer [gc]]))

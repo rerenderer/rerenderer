@@ -97,18 +97,18 @@
   [component]
   {:pre [(satisfies? IComponent component)
          (satisfies? IBrowser component)]}
-  (reset! r/script [])
-  (let [{:keys [width height]} (props component)
-        canvas (r/new Canvas)
-        ctx (r/.. canvas (getContext "2d"))]
-    (r/set! (r/.. canvas -width) width)
-    (r/set! (r/.. canvas -height) height)
-    (render-browser component ctx)
-    (->RenderResult @r/script canvas)))
+  (r/recording script
+    (let [{:keys [width height]} (props component)
+          canvas (r/new Canvas)
+          ctx (r/.. canvas (getContext "2d"))]
+      (r/set! (r/.. canvas -width) width)
+      (r/set! (r/.. canvas -height) height)
+      (render-browser component ctx)
+      (->RenderResult @script canvas))))
 
 (defmethod platform/render-to :browser
   [child parent]
-  (reset! r/script [])
-  (let [ctx (r/.. (:canvas parent) (getContext "2d"))]
-    (r/.. ctx (drawImage (:canvas child) (:x child) (:y child))))
-  @r/script)
+  (r/recording script
+    (let [ctx (r/.. (:canvas parent) (getContext "2d"))]
+      (r/.. ctx (drawImage (:canvas child) (:x child) (:y child))))
+    @script))

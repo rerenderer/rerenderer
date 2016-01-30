@@ -23,10 +23,10 @@
                            :color  [255 (* 20 n) (:i state) 0]}))
 
              (rectangle {:width  20
-                         :height 20
+                         :height 200
                          :x      (:i state)
                          :y      (:i state)
-                         :color  [100 255 255 255]})))
+                         :color  [10 255 255 255]})))
 
 (defn event-handler
   [event-ch state-atom options]
@@ -40,7 +40,7 @@
     (<! (timeout 100))
     (recur)))
 
-(init! :root-view root
-       :state {:i 0}
-       :canvas (.getElementById js/document "canvas")
-       :event-handler event-handler)
+(defonce game (init! :root-view #'root
+                     :state {:i 0}
+                     :canvas (.getElementById js/document "canvas")
+                     :event-handler #'event-handler))

@@ -4,8 +4,7 @@
   (:require [rerenderer.platform.browser :refer [IBrowser]]
             [rerenderer.platform.android :refer [IAndroid]]
             [rerenderer.lang.interop :as r :include-macros true]
-            [rerenderer.types.component :refer [IComponent tag props childs
-                                                component->string]]))
+            [rerenderer.types.component :refer [IComponent component->string]]))
 
 (defn rectangle
   "Rectangle primitive, can be nested:
@@ -70,7 +69,7 @@
    & childs]
   (reify
     Object
-    (toString [this] (str "<component" (tag this) " " props ">"))
+    (toString [this] (component->string this))
     IComponent
     (tag [_] "text")
     (childs [_] childs)
@@ -118,7 +117,7 @@
    & childs]
   (reify
     Object
-    (toString [this] (str "<component" (tag this) " " props ">"))
+    (toString [this] (component->string this))
     IComponent
     (tag [_] "image")
     (childs [_] childs)
