@@ -4,7 +4,7 @@
             [rerenderer.platform.core :refer [apply-script! render-to]]
             [rerenderer.interop :refer [script]]
             [rerenderer.render.node :refer [Component->Node]]
-            [rerenderer.optimizer :refer [gc]]))
+            [rerenderer.optimizer :refer [gc update-cache!]]))
 
 (defn render-childs
   [node]
@@ -26,6 +26,7 @@
   (let [node (Component->Node component)
         script (gc (render-node node))
         canvas (-> node :canvas last)]
+    (update-cache! node)
     (apply-script! script canvas options)))
 
 
