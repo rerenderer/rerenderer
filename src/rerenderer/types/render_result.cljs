@@ -13,7 +13,7 @@
     (if cached
       (->RenderResult [] cached)
       (let [rendered (render component)]
-        (swap! cache assoc path rendered)
+        (swap! cache assoc path (:canvas rendered))
         rendered))))
 
 (defn sanitize-cache!
@@ -27,7 +27,3 @@
     (swap! cache #(into {} (for [[k v] %
                                  :when (used? k)]
                              [k v])))))
-
-(defn get-cached
-  []
-  (map :canvas (vals @cache)))

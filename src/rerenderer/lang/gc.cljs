@@ -1,6 +1,5 @@
 (ns rerenderer.lang.gc
   (:require [cljs.core.match :refer-macros [match]]
-            [rerenderer.types.render-result :refer [get-cached]]
             [rerenderer.lang.forms :refer [->Free Ref]]))
 
 (def ^:private refs-cache (atom []))
@@ -16,8 +15,7 @@
 
 (defn gc
   [script]
-  (let [used (set (concat (get-all-refs script)
-                          (get-cached)))
+  (let [used (set (get-all-refs script))
         to-gc (remove used @refs-cache)]
     (reset! refs-cache used)
     (concat script (map ->Free to-gc))))

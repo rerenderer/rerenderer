@@ -1,7 +1,6 @@
 (ns ^:figwheel-always rerenderer.lang.gc-test
   (:require-macros [rerenderer.test-utils :refer [script-of]])
   (:require [cljs.test :refer-macros [deftest is testing]]
-            [rerenderer.types.render-result :refer [get-cached]]
             [rerenderer.lang.core :include-macros true :as r]
             [rerenderer.lang.forms :as f]
             [rerenderer.lang.gc :as gc]))
@@ -20,9 +19,4 @@
         (is (= (filter #(instance? f/Free %) gced)
                (mapv f/->Free refs)))
         (is (= (remove #(instance? f/Free %) gced)
-               script-2))))
-    (testing "Second run with different when previous cached"
-      (reset! gc/refs-cache [])
-      (with-redefs [get-cached #(gc/get-all-refs script)]
-        (is (= script (gc/gc script)))
-        (is (= script-2 (gc/gc script-2)))))))
+               script-2))))))

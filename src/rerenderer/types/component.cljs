@@ -23,14 +23,20 @@
   (props [this]))
 
 (defn component->string
-  [primitive]
-  (str "(" (tag primitive) " " (props primitive)
-       (string/join "\n" (map component->string (childs primitive)))
-       ")"))
+  [component]
+  (let [indent (string/join (for [_ (-> component tag count range)] " "))
+        childs-lines (flatten (map #(string/split-lines (component->string %))
+                                   (childs component)))
+        childs-text (string/join (str "\n" indent) childs-lines)]
+
+    (str "(" (tag component) " " (props component)
+         (if (pos? (count childs-text))
+           (str "\n" indent childs-text)
+           "") ")")))
 
 (def calculate-path
   (memoize
     (fn [component]
-      (string/join ":" (merge [(tag component)
-                               (props component)]
-                              (map :path (childs component)))))))
+      (str (tag component) ":" (props component) ":["
+           (string/join ":" (map calculate-path (childs component)))
+           "]"))))
