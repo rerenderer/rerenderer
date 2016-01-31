@@ -9,9 +9,13 @@
             rerenderer.types.component-test
             rerenderer.types.node-test
             rerenderer.types.render-result-test
-            rerenderer.render-test))
+            rerenderer.render-test
+            rerenderer.platform.browser.interpreter-test
+            rerenderer.platform.browser.events-test
+            rerenderer.platform.browser.core-test))
 
 (enable-console-print!)
+(devtools/enable-feature! :sanity-hints)
 (devtools/install!)
 
 (defn print-comparison

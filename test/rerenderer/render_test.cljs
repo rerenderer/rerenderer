@@ -1,4 +1,4 @@
-(ns rerenderer.render-test
+(ns ^:figwheel-always rerenderer.render-test
   (:require [cljs.test :refer-macros [deftest is testing]]
             [cljs.core.match :refer-macros [match]]
             [rerenderer.test-utils :refer-macros [with-platform script-of]

@@ -1,7 +1,7 @@
 (ns rerenderer.primitives
   "Simple primitives for drawing. Using primitives is more preferd then
   creating components by yourself or operating with native-objects."
-  (:require [rerenderer.platform.browser :refer [IBrowser]]
+  (:require [rerenderer.platform.browser.core :refer [IBrowser]]
             [rerenderer.platform.android :refer [IAndroid]]
             [rerenderer.lang.core :as r :include-macros true]
             [rerenderer.types.component :refer [IComponent component->string]]))
