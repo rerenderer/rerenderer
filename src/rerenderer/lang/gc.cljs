@@ -4,7 +4,8 @@
 
 (def ^:private refs-cache (atom []))
 
-(defn- get-all-refs
+(defn get-all-refs
+  "Returns all refs from script."
   [script]
   (->> (for [instruction script
              field [:result-ref :ref :args]]
@@ -14,6 +15,7 @@
        set))
 
 (defn gc
+  "Add `Free` instructions for old refs to script."
   [script]
   (let [used (set (get-all-refs script))
         to-gc (remove used @refs-cache)]

@@ -7,7 +7,8 @@
 (defn init!
   "Initializes new rernderer application, required params:
     - root-view - function for rendering root canvas - (fn [state options])
-    - event-handler - function for handling events - (fn [event-ch state-atom options])."
+    - event-handler - function for handling events - (fn [event-ch state-atom options])
+    - **options - additional platform/app-dependent options."
   [& {:keys [root-view event-handler
              state] :as options}]
   {:pre [(ifn? root-view)

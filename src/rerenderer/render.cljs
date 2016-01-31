@@ -7,11 +7,13 @@
             [rerenderer.lang.gc :refer [gc]]
             [rerenderer.lang.forms :refer [serialize]]))
 
-(defn render-childs
+(defn- render-childs
+  "Renders node childs to node canvas."
   [node]
   (mapcat #(render-to % node) (:childs node)))
 
-(defn render-node
+(defn- render-node
+  "Render node and all childs recursevly."
   [node]
   (loop [[node & rest-nodes] [node]
          render-inside []
@@ -22,17 +24,19 @@
              (concat render-on (render-childs node)))
       (concat render-inside render-on))))
 
-(defn render-component!
+(defn- render-component!
+  "Renders component and send script to platfrom side."
   [component options]
   (let [node (Component->Node component)
         script (gc (render-node node))
-        canvas (-> node :canvas last)]
+        canvas (-> node :canvas)]
     (sanitize-cache! node)
     (apply-script! (map serialize script)
-                   canvas options)))
+                   (serialize canvas) options)))
 
 
 (defn get-render-ch
+  "Returns channel that waits for states."
   [root options]
   (let [ch (chan (sliding-buffer 1))]
     (go-loop []

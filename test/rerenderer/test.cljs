@@ -8,7 +8,8 @@
             rerenderer.lang.gc-test
             rerenderer.types.component-test
             rerenderer.types.node-test
-            rerenderer.types.render-result-test))
+            rerenderer.types.render-result-test
+            rerenderer.render-test))
 
 (enable-console-print!)
 (devtools/install!)

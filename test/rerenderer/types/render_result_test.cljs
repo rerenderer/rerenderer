@@ -13,7 +13,7 @@
           :stub :stub 30 40))
 
 (defmethod p/render ::test
-  [component]
+  [_]
   (r/->RenderResult :stub (genref)))
 
 (deftest test-Component->RenderResult
@@ -26,7 +26,6 @@
       (reset! r/cache {})
       (let [result-1 (r/Component->RenderResult component)
             result-2 (r/Component->RenderResult component)]
-        (println result-2)
         (is (= (:canvas result-1) (:canvas result-2)))
         (is (not= (:script result-1) []))
         (is (= (:script result-2) []))))))

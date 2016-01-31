@@ -7,6 +7,7 @@
 (def cache (atom {}))
 
 (defn Component->RenderResult
+  "Renders component and creates render result."
   [component]
   (let [path (calculate-path component)
         cached (get @cache path)]
@@ -17,6 +18,7 @@
         rendered))))
 
 (defn sanitize-cache!
+  "Removes old nodes from cache."
   [node]
   (let [paths (loop [[node & rest-nodes] [node]
                      result []]

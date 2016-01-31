@@ -10,12 +10,12 @@
   "Rectangle primitive, can be nested:
 
   ```
-  [rectangle {:color [255 0 0 0] ; argb
+  (rectangle {:color [255 0 0 0] ; argb
               :width 100
               :height 300
               :x 10
               :y 10}
-    #_ another-rectangle]
+    childs)
   ```"
   [{:keys [width height color x y]
     :or {width 0
@@ -49,13 +49,14 @@
   "Text primitive, can be nested:
 
   ```
-  [text {:width 100
+  (text {:width 100
          :height 30
          :font-size 10
          :color [255 255 255 0]
          :x 10
          :y 10
-         :value \"Hi there\"}]
+         :value \"Hi there\"}
+    childs)
   ```"
   [{:keys [width height font-size color x y value]
     :or {width 0
@@ -98,13 +99,14 @@
   "Image primitive, can be nested:
 
   ```
-  [image {:width 100
+  (image {:width 100
           :height 200
           :src \"bird\" ; `id` of image on bootstraping  html page
           :sx 20 ; x on source image, usable for cutting sprites
           :sy 30 ; y on source image, usable for cutting sprites
           :x 10
-          :y 20}]
+          :y 20}
+    childs)
   ```"
   [{:keys [width height src x y sx sy]
     :or {width 0

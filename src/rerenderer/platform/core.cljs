@@ -1,5 +1,6 @@
 (ns rerenderer.platform.core)
 
+; Should be changed when platform deceted:
 (def platform (atom nil))
 
 (defn get-platform [] @platform)

@@ -6,6 +6,7 @@
 (defrecord Node [childs script canvas x y])
 
 (defn Component->Node
+  "Creates node from component."
   [component]
   (let [{:keys [script canvas]} (Component->RenderResult component)
         {:keys [x y]} (props component)]

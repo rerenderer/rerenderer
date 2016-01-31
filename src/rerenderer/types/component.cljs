@@ -23,6 +23,7 @@
   (props [this]))
 
 (defn component->string
+  "Translates component to string, thath looks like component usage in views."
   [component]
   (let [indent (string/join (for [_ (-> component tag count range)] " "))
         childs-lines (flatten (map #(string/split-lines (component->string %))
