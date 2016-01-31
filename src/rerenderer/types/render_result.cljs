@@ -9,10 +9,12 @@
 (defn Component->RenderResult
   [component]
   (let [path (calculate-path component)
-        cached (@cache path)]
+        cached (get @cache path)]
     (if cached
       (->RenderResult [] cached)
-      (render component))))
+      (let [rendered (render component)]
+        (swap! cache assoc path rendered)
+        rendered))))
 
 (defn sanitize-cache!
   [node]
@@ -28,4 +30,4 @@
 
 (defn get-cached
   []
-  (map second (vals @cache)))
+  (map :canvas (vals @cache)))

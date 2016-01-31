@@ -2,7 +2,7 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.match :refer-macros [match]]
             [cljs.core.async :refer [>! chan]]
-            [rerenderer.lang.interop :as r :include-macros true]
+            [rerenderer.lang.core :as r :include-macros true]
             [rerenderer.platform.core :as platform]
             [rerenderer.types.component :refer [IComponent props]]
             [rerenderer.types.render-result :refer [->RenderResult]]))
@@ -13,7 +13,7 @@
   "Returns value of var named `value` or just `value`."
   [vars value]
   (match value
-         [:var x] (get vars x)
+         [:ref x] (get vars x)
          [:val x] x))
 
 (defn create-instance

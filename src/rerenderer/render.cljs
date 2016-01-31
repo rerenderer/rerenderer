@@ -4,7 +4,8 @@
             [rerenderer.platform.core :refer [apply-script! render-to]]
             [rerenderer.types.node :refer [Component->Node]]
             [rerenderer.types.render-result :refer [sanitize-cache!]]
-            [rerenderer.lang.gc :refer [gc]]))
+            [rerenderer.lang.gc :refer [gc]]
+            [rerenderer.lang.forms :refer [serialize]]))
 
 (defn render-childs
   [node]
@@ -27,7 +28,8 @@
         script (gc (render-node node))
         canvas (-> node :canvas last)]
     (sanitize-cache! node)
-    (apply-script! script canvas options)))
+    (apply-script! (map serialize script)
+                   canvas options)))
 
 
 (defn get-render-ch

@@ -10,23 +10,23 @@
 
 (defn root
   [state]
-  (rectangle {:width  400
+  (rectangle {:width 400
               :height 400
-              :x      0
-              :y      0
-              :color  [255 0 (:i state) 0]}
+              :x 0
+              :y 0
+              :color [255 0 (:i state) 0]}
              (for [n (range 10)]
-               (rectangle {:width  400
+               (rectangle {:width 400
                            :height (- 400 (* 20 n))
-                           :x      0
-                           :y      0
-                           :color  [255 (* 20 n) (:i state) 0]}))
+                           :x 0
+                           :y 0
+                           :color [255 (* 20 n) (:i state) 0]}))
 
-             (rectangle {:width  20
+             (rectangle {:width 20
                          :height 200
-                         :x      (:i state)
-                         :y      (:i state)
-                         :color  [10 255 255 255]})))
+                         :x (:i state)
+                         :y (:i state)
+                         :color [10 255 255 255]})))
 
 (defn event-handler
   [event-ch state-atom options]
@@ -40,7 +40,9 @@
     (<! (timeout 100))
     (recur)))
 
-(defonce game (init! :root-view #'root
-                     :state {:i 0}
-                     :canvas (.getElementById js/document "canvas")
-                     :event-handler #'event-handler))
+(init! :root-view #'root
+       :state {:i 0}
+       :canvas (.getElementById js/document "canvas")
+       :width 800
+       :height 600
+       :event-handler #'event-handler)
