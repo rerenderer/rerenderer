@@ -5,7 +5,7 @@
             [rerenderer.render :refer [render-component! get-render-ch]]))
 
 (defn init!
-  "Initializes new rernderer application, required params:
+  "Initializes new rerenderer application, required params:
     - root-view - function for rendering root canvas - (fn [state options])
     - event-handler - function for handling events - (fn [event-ch state-atom options])
     - **options - additional platform/app-dependent options."
