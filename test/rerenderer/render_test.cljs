@@ -45,8 +45,8 @@
     (let [script (r/render-node node)
           refs (vec (get-all-refs script))]
       (is (= script
-             [(f/->New (get refs 0) "Canvas" [(f/->Val 1) (f/->Val 2)])
-              (f/->New (get refs 1) "Canvas" [(f/->Val 3) (f/->Val 4)])
+             [(f/->New (get refs 0) (f/->Static "Canvas") [(f/->Val 1) (f/->Val 2)])
+              (f/->New (get refs 1) (f/->Static "Canvas") [(f/->Val 3) (f/->Val 4)])
               (f/->Call (get refs 2) (second canvases) "render" [(first canvases)])])))))
 
 (deftest test-render-component!

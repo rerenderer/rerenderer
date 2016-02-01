@@ -9,20 +9,27 @@
       (let [result (r/new Canvas 10 20)]
         (is (instance? f/Ref result))
         (is (= @script
-               [(f/->New result "Canvas" [(f/->Val 10) (f/->Val 20)])])))))
+               [(f/->New result (f/->Static "Canvas") [(f/->Val 10) (f/->Val 20)])])))))
   (testing "With mixed args"
     (r/recording script
       (let [obj (f/->Ref (gensym))
             result (r/new Canvas obj 2)]
         (is (instance? f/Ref result))
         (is (= @script
-               [(f/->New result "Canvas" [obj (f/->Val 2)])])))))
+               [(f/->New result (f/->Static "Canvas") [obj (f/->Val 2)])])))))
   (testing "Without args"
     (r/recording script
       (let [result (r/new Canvas)]
         (is (instance? f/Ref result))
         (is (= @script
-               [(f/->New result "Canvas" [])]))))))
+               [(f/->New result (f/->Static "Canvas") [])])))))
+  (testing "With multi-level class"
+    (r/recording script
+      (let [cls (r/.. Event -Click)
+            result (r/new cls)]
+        (is (= @script
+               [(f/->Get cls (f/->Static "Event") "Click")
+                (f/->New result cls [])]))))))
 
 (deftest test-dot-dot-macro
   (testing "First-level attriubte"
@@ -66,7 +73,7 @@
             refs (mapv :result-ref @script)]
         (is (instance? f/Ref result))
         (is (= @script
-               [(f/->Call (first refs) (f/->Ref ":Canvas") "getAt" [(f/->Val 15) arg])
+               [(f/->Call (first refs) (f/->Static "Canvas") "getAt" [(f/->Val 15) arg])
                 (f/->Get (second refs) (first refs) "box")
                 (f/->Call (get refs 2) (second refs) "getOffset" [])
                 (f/->Get result (get refs 2) "left")]))))))
@@ -94,7 +101,7 @@
 (def v (f/->Ref "test!"))
 
 (deftest test-wrap
-  (is (= (r/wrap Canvas) (f/->Ref ":Canvas")))
+  (is (= (r/wrap Canvas) (f/->Static "Canvas")))
   (is (= (r/wrap (f/->Ref "test")) (f/->Ref "test")))
   (let [x (f/->Ref "y")]
     (is (= (r/wrap x) (f/->Ref "y"))))

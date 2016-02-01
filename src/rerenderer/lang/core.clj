@@ -3,6 +3,17 @@
   (:require [clojure.string :refer [join]]
             [cljs.analyzer :refer [resolve-var]]))
 
+(defmacro wrap
+  [x]
+  (if (symbol? x)
+    (let [full-ns (-> &env :ns :name)
+          full-name (symbol (str (name full-ns) "/" (name x)))]
+      (if (= (resolve-var &env x) {:ns full-ns
+                                   :name full-name})
+        `(rerenderer.lang.forms/->Static ~(name x))
+        x))
+    x))
+
 (defmacro new
   "Works like `new` or `class.`, usage:
 
@@ -11,7 +22,7 @@
   (r/new 'Rectangle 100 100 200 200)
   ```"
   [cls & args]
-  `(rnew ~(name cls) ~(vec args)))
+  `(rnew (wrap ~cls) ~(vec args)))
 
 (defn ^:no-doc attr-to-str
   [attr]
@@ -25,17 +36,6 @@
       `(rget ~x ~(attr-to-str form))
       `(rcall! ~x ~(name form) []))
     `(rcall! ~x ~(name (first form)) ~(vec (rest form)))))
-
-(defmacro wrap
-  [x]
-  (if (symbol? x)
-    (let [full-ns (-> &env :ns :name)
-          full-name (symbol (str (name full-ns) "/" (name x)))]
-      (if (= (resolve-var &env x) {:ns full-ns
-                                   :name full-name})
-        `(rerenderer.lang.forms/->Ref ~(str ":" (name x)))
-        x))
-    x))
 
 (defmacro dot-dot
   ([x form] (dot x form))

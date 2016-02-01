@@ -2,7 +2,7 @@
   (:require [cljs.test :refer-macros [deftest is]]
             [cljs.core.async :refer [chan]]
             [cljs.core.match :refer-macros [match]]
-            [rerenderer.test-utils :refer-macros [with-platform script-of] :refer [genref]]
+            [rerenderer.test-utils :refer-macros [with-platform script-of match?] :refer [genref]]
             [rerenderer.lang.core :include-macros true :as r]
             [rerenderer.lang.forms :refer [serialize Ref ->Ref]]
             [rerenderer.types.component :refer [IComponent]]
@@ -45,14 +45,14 @@
           script (mapv serialize (:script result))]
       (is (instance? RenderResult result))
       (is (instance? Ref (:canvas result)))
-      (is (match script
-            [[:call [:ref _] [:ref ":Bitmap$Config"] "valueOf" [[:val "ARGB_8888"]]]
-             [:call [:ref _] [:ref ":Bitmap"] "createBitmap" [[:val 20] [:val 20] [:ref _]]]
-             [:new [:ref _] "Canvas" [[:ref _]]]
-             [:new [:ref _] "Paint" []]
-             [:call [:ref _] [:ref _] "setARGB" [[:val 255] [:val 255] [:val 0] [:val 0]]]
-             [:call [:ref _] [:ref _] "drawRect" [[:val 0] [:val 0] [:val 10] [:val 10] [:ref _]]]] true
-            _ false)))))
+      (is (match? script
+                  [[:get [:ref _] [:static "Bitmap"] "Config"]
+                   [:call [:ref _] [:ref _] "valueOf" [[:val "ARGB_8888"]]]
+                   [:call [:ref _] [:static "Bitmap"] "createBitmap" [[:val 20] [:val 20] [:ref _]]]
+                   [:new [:ref _] [:static "Canvas"] [[:ref _]]]
+                   [:new [:ref _] [:static "Paint"] []]
+                   [:call [:ref _] [:ref _] "setARGB" [[:val 255] [:val 255] [:val 0] [:val 0]]]
+                   [:call [:ref _] [:ref _] "drawRect" [[:val 0] [:val 0] [:val 10] [:val 10] [:ref _]]]])))))
 
 (deftest test-render-to
   (with-platform :android
@@ -62,7 +62,6 @@
                               (->Ref "y") 20 30)
           ; It's simple to test serialized version of big script
           script (mapv serialize (p/render-to child-node parent-node))]
-      (is (match script
-            [[:new [:ref _] "Paint" []]
-             [:call [:ref _] [:ref "y"] "drawBitmap" [[:ref "x"] [:val 10] [:val 20] [:ref _]]]] true
-            _ false)))))
+      (is (match? script
+            [[:new [:ref _] [:static "Paint"] []]
+             [:call [:ref _] [:ref "y"] "drawBitmap" [[:ref "x"] [:val 10] [:val 20] [:ref _]]]])))))

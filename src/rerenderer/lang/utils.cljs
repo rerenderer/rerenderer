@@ -5,7 +5,7 @@
   "Returns all refs from script."
   [script]
   (->> (for [instruction script
-             field [:result-ref :ref :args]]
+             field [:result-ref :ref :args :cls]]
          (get instruction field))
        flatten
        (filter #(instance? Ref %))

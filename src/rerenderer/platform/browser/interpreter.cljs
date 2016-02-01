@@ -1,27 +1,29 @@
 (ns rerenderer.platform.browser.interpreter
-  (:require [cljs.core.match :refer-macros [match]]))
+  (:require [cljs.core.match :refer-macros [match]]
+            [clojure.string :as string]))
 
 (def refs-cache (atom {'document js/document}))
 
 (defn extract-var
   [refs var]
   (match var
+    [:static x] (aget js/window x)
     [:ref x] (refs x)
     [:val x] x))
 
-; TODO: allow to create all available classes dynamically
 (defn create-instance
   "Creates an instance of `cls` with `args` and puts it in `refs`."
   [refs [_ ref-id] cls args]
-  (let [prepared-args (mapv #(extract-var refs %) args)
-        inst (match [cls prepared-args]
-               ["Canvas" []] (.createElement js/document "canvas"))]
+  (let [cls (extract-var refs cls)
+        js-args (clj->js (into [nil] (map #(extract-var refs %) args)))
+        constructor (.. js/Function -prototype -bind (apply cls js-args))
+        inst (new constructor)]
     (assoc refs ref-id inst)))
 
 (defn set-attr
   "Sets `value` to `attr` of `ref`."
-  [refs [_ ref] attr value]
-  (aset (refs ref) attr (extract-var refs value))
+  [refs obj attr value]
+  (aset (extract-var refs obj) attr (extract-var refs value))
   refs)
 
 (defn get-attr
@@ -54,7 +56,7 @@
                                                       method args)
       [:free var] (free refs var))
     (catch js/Error e
-      (println "Can't execute instruction " instruction)
+      (.warn js/console "Can't execute instruction" instruction ":" e)
       (throw e))))
 
 (defn interprete!

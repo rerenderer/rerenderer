@@ -3,13 +3,15 @@
             [rerenderer.platform.browser.interpreter :as i]))
 
 (deftest test-extract-var
+  (set! (.-TestExtractVar js/window) 23)
   (are [refs var result] (= (i/extract-var refs var) result)
     {"y" 12} [:ref "y"] 12
-    {} [:val 50] 50))
+    {} [:val 50] 50
+    {} [:static "TestExtractVar"] 23))
 
 (deftest test-create-instance
-  (let [refs (i/create-instance {} [:ref "x"] "Canvas" [])]
-    (is (= (.-tagName (refs "x")) "CANVAS"))))
+  (let [refs (i/create-instance {} [:ref "x"] [:static "Event"] [[:val "click"]])]
+    (is (= (.-type (refs "x")) "click"))))
 
 (deftest test-set-attr
   (let [refs {"x" #js {}
@@ -46,8 +48,8 @@
 (deftest test-interprete-instruction
   (testing ":new"
     (let [refs (i/interprete-instruction {}
-                 [:new [:ref "x"] "Canvas" []])]
-      (is (= (.-tagName (refs "x")) "CANVAS"))))
+                 [:new [:ref "x"] [:static "Event"] [[:val "click"]]])]
+      (is (= (.-type (refs "x")) "click"))))
   (testing ":set"
     (let [refs {"x" #js {}}
           refs (i/interprete-instruction refs
@@ -66,13 +68,13 @@
 (deftest test-interprete
   (reset! i/refs-cache {"a" 10
                         "b" #js {"method" (fn [a b] (+ a b))}})
-  (i/interprete! [[:new [:ref "x"] "Canvas" []]
+  (i/interprete! [[:new [:ref "x"] [:static "Event"] [[:val "click"]]]
                   [:set [:ref "b"] "z" [:ref "a"]]
                   [:get [:ref "m"] [:ref "b"] "z"]
                   [:call [:ref "z"] [:ref "b"] "method" [[:val 2] [:ref "a"]]]
                   [:free [:ref "a"]]])
   (is (nil? (@i/refs-cache "a")))
-  (is (= (.-tagName (@i/refs-cache "x")) "CANVAS"))
+  (is (= (.-type (@i/refs-cache "x")) "click"))
   (is (= (.-z (@i/refs-cache "b")) 10))
   (is (= (@i/refs-cache "m") 10))
   (is (= (@i/refs-cache "z") 12)))

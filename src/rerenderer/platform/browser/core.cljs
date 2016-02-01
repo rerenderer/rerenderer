@@ -32,7 +32,7 @@
          (satisfies? IBrowser component)]}
   (r/recording script
     (let [{:keys [width height]} (props component)
-          canvas (r/new Canvas)
+          canvas (r/.. document (createElement "canvas"))
           ctx (r/.. canvas (getContext "2d"))]
       (r/set! (r/.. canvas -width) width)
       (r/set! (r/.. canvas -height) height)

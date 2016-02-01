@@ -1,8 +1,7 @@
 (ns ^:figwheel-always rerenderer.platform.browser.core-test
   (:require [cljs.test :refer-macros [deftest is]]
             [cljs.core.async :refer [chan]]
-            [cljs.core.match :refer-macros [match]]
-            [rerenderer.test-utils :refer-macros [with-platform script-of]]
+            [rerenderer.test-utils :refer-macros [with-platform script-of match?]]
             [rerenderer.lang.core :as r :include-macros true]
             [rerenderer.lang.forms :refer [serialize Ref ->Ref]]
             [rerenderer.types.component :refer [IComponent]]
@@ -16,7 +15,7 @@
   (with-platform :browser
     (r/recording script
       (let [canvas (.createElement js/document "canvas")
-            root (r/new Canvas)
+            root (r/.. document (createElement "Canvas"))
             ctx (r/.. root (getContext "2d"))]
         (r/set! (r/.. ctx -fillStyle) "rgb(255,0,0)")
         (r/.. ctx (fillRect 0 0 10 10))
@@ -52,13 +51,13 @@
           script (mapv serialize (:script result))]
       (is (instance? RenderResult result))
       (is (instance? Ref (:canvas result)))
-      (is (match script
-            [[:new [:ref _] "Canvas" []]
+      (is (match? script
+            [[:call [:ref _] [:static "document"] "createElement" [[:val "canvas"]]]
              [:call [:ref _] [:ref _] "getContext" [[:val "2d"]]]
              [:set [:ref _] "width" [:val 30]]
              [:set [:ref _] "height" [:val 40]]
-             [:set [:ref _] "fillStyle" [:val "red"]]] true
-            _ false)))))
+             [:set [:ref _] "fillStyle" [:val "red"]]])))))
+
 
 (deftest test-render-to
   (with-platform :browser
@@ -68,7 +67,6 @@
                               (->Ref "y") 20 30)
           ; It's simple to test serialized version of big script
           script (mapv serialize (p/render-to child-node parent-node))]
-      (is (match script
+      (is (match? script
             [[:call [:ref _] [:ref "y"] "getContext" [[:val "2d"]]]
-             [:call [:ref _] [:ref _] "drawImage" [[:ref "x"] [:val 10] [:val 20]]]] true
-            _ false)))))
+             [:call [:ref _] [:ref _] "drawImage" [[:ref "x"] [:val 10] [:val 20]]]])))))

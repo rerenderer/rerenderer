@@ -11,8 +11,8 @@
          [:val 30])))
 
 (deftest test-New-serialize
-  (is (= (f/serialize (f/->New (f/->Ref 2) "Canvas" [(f/->Val 20) (f/->Ref 3)]))
-         [:new [:ref "2"] "Canvas" [[:val 20] [:ref "3"]]])))
+  (is (= (f/serialize (f/->New (f/->Ref 2) (f/->Static "Canvas") [(f/->Val 20) (f/->Ref 3)]))
+         [:new [:ref "2"] [:static "Canvas"] [[:val 20] [:ref "3"]]])))
 
 (deftest test-Set-serialize
   (is (= (f/serialize (f/->Set (f/->Ref 3) "x" (f/->Val 40)))

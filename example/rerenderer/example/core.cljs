@@ -40,9 +40,9 @@
     (<! (timeout 100))
     (recur)))
 
-(init! :root-view #'root
-       :state {:i 0}
-       :canvas (.getElementById js/document "canvas")
-       :width 800
-       :height 600
-       :event-handler #'event-handler)
+(defonce _ (init! :root-view #'root
+                  :state {:i 0}
+                  :canvas (.getElementById js/document "canvas")
+                  :width 800
+                  :height 600
+                  :event-handler #'event-handler))

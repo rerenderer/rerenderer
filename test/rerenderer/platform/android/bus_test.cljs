@@ -16,7 +16,7 @@
     (with-platform :android
       (b/interprete! script [:ref (:id ref)])
       (is (= @serialised-data
-             (to-json {:script [[:new [:ref (:id ref)] "Bitmap" []]]
+             (to-json {:script [[:new [:ref (:id ref)] [:static "Bitmap"] []]]
                          :root [:ref (:id ref)]}))))))
 
 (deftest test-on-event!

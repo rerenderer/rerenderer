@@ -18,11 +18,16 @@
   IForm
   (serialize [_] [:val value]))
 
+(defrecord Static [id]
+  IVar
+  IForm
+  (serialize [_] [:static id]))
+
 ; Instructions:
 (defrecord New [result-ref cls args]
   IInstruction
   IForm
-  (serialize [_] [:new (serialize result-ref) (str cls) (mapv serialize args)]))
+  (serialize [_] [:new (serialize result-ref) (serialize cls) (mapv serialize args)]))
 
 (defrecord Set [ref attr value]
   IInstruction
