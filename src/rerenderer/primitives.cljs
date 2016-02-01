@@ -126,11 +126,11 @@
     (props [_] props)
     IBrowser
     (render-browser [_ ctx]
-      (let [img (r/.. r/static -document (getElementById src))]
+      (let [img (r/.. document (getElementById src))]
         (r/.. ctx (drawImage img sx sy width height 0 0 width height))))
     IAndroid
     (render-android [_ canvas]
       (let [url (get-image-url src)
-            bitmap (r/.. r/static -RerendererLoader (bitmapFromUrl url))
-            clipped (r/.. r/static -Bitmap (createBitmap bitmap sx sy width height))]
+            bitmap (r/.. RerendererLoader (bitmapFromUrl url))
+            clipped (r/.. Bitmap (createBitmap bitmap sx sy width height))]
         (r/.. canvas (drawBitmap clipped 0 0 (r/new Paint)))))))

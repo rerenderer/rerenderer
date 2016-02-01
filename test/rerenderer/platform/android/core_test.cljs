@@ -46,17 +46,15 @@
       (is (instance? RenderResult result))
       (is (instance? Ref (:canvas result)))
       (is (match script
-            [[:get [:ref _] [:ref "STATIC"] "Bitmap$Config"]
-             [:call [:ref _] [:ref _] "valueOf" [[:val "ARGB_8888"]]]
-             [:get [:ref _] [:ref "STATIC"] "Bitmap"]
-             [:call [:ref _] [:ref _] "createBitmap" [[:val 20] [:val 20] [:ref _]]]
+            [[:call [:ref _] [:ref ":Bitmap$Config"] "valueOf" [[:val "ARGB_8888"]]]
+             [:call [:ref _] [:ref ":Bitmap"] "createBitmap" [[:val 20] [:val 20] [:ref _]]]
              [:new [:ref _] "Canvas" [[:ref _]]]
              [:new [:ref _] "Paint" []]
              [:call [:ref _] [:ref _] "setARGB" [[:val 255] [:val 255] [:val 0] [:val 0]]]
              [:call [:ref _] [:ref _] "drawRect" [[:val 0] [:val 0] [:val 10] [:val 10] [:ref _]]]] true
             _ false)))))
 
-(def test-render-to
+(deftest test-render-to
   (with-platform :android
     (let [child-node (->Node [] (script-of (r/new Bitmap))
                              (->Ref "x") 10 20)

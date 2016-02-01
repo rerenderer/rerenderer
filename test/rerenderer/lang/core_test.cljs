@@ -58,6 +58,17 @@
                [(f/->Call (first refs) obj "getAt" [(f/->Val 15) arg])
                 (f/->Get (second refs) (first refs) "box")
                 (f/->Call (get refs 2) (second refs) "getOffset" [])
+                (f/->Get result (get refs 2) "left")])))))
+  (testing "Static multi-level mixed"
+    (r/recording script
+      (let [arg (f/->Ref (gensym))
+            result (r/.. Canvas (getAt 15 arg) -box getOffset -left)
+            refs (mapv :result-ref @script)]
+        (is (instance? f/Ref result))
+        (is (= @script
+               [(f/->Call (first refs) (f/->Ref ":Canvas") "getAt" [(f/->Val 15) arg])
+                (f/->Get (second refs) (first refs) "box")
+                (f/->Call (get refs 2) (second refs) "getOffset" [])
                 (f/->Get result (get refs 2) "left")]))))))
 
 (deftest test-set!
@@ -79,3 +90,12 @@
                   (f/->Call (second refs) (first refs) "getFirst" [])
                   (f/->Get (get refs 2) (second refs) "point")
                   (f/->Set (get refs 2) "y" ref)])))))))
+
+(def v (f/->Ref "test!"))
+
+(deftest test-wrap
+  (is (= (r/wrap Canvas) (f/->Ref ":Canvas")))
+  (is (= (r/wrap (f/->Ref "test")) (f/->Ref "test")))
+  (let [x (f/->Ref "y")]
+    (is (= (r/wrap x) (f/->Ref "y"))))
+  (is (= (r/wrap v) (f/->Ref "test!"))))

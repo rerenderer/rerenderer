@@ -1,6 +1,7 @@
 (ns rerenderer.lang.core
   (:refer-clojure :exclude [new .. set!])
-  (:require [clojure.string :refer [join]]))
+  (:require [clojure.string :refer [join]]
+            [cljs.analyzer :refer [resolve-var]]))
 
 (defmacro new
   "Works like `new` or `class.`, usage:
@@ -25,6 +26,21 @@
       `(rcall! ~x ~(name form) []))
     `(rcall! ~x ~(name (first form)) ~(vec (rest form)))))
 
+(defmacro wrap
+  [x]
+  (if (symbol? x)
+    (let [full-ns (-> &env :ns :name)
+          full-name (symbol (str (name full-ns) "/" (name x)))]
+      (if (= (resolve-var &env x) {:ns full-ns
+                                   :name full-name})
+        `(rerenderer.lang.forms/->Ref ~(str ":" (name x)))
+        x))
+    x))
+
+(defmacro dot-dot
+  ([x form] (dot x form))
+  ([x form & more] `(dot-dot ~(dot x form) ~@more)))
+
 (defmacro ..
   "Usage:
 
@@ -32,8 +48,8 @@
    (r/.. canvas (getContext \"2d\"))
    (r/.. image -onLoad (bind (fn [])))
    ```"
-  ([x form] (dot x form))
-  ([x form & more] `(rerenderer.lang.core/.. ~(dot x form) ~@more)))
+  [x form & more]
+  `(dot-dot (wrap ~x) ~form ~@more))
 
 (defmacro set!
   "Usage:

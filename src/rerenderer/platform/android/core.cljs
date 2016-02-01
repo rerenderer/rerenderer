@@ -29,8 +29,8 @@
          (satisfies? IAndroid component)]}
   (r/recording script
     (let [{:keys [width height]} (props component)
-          colorspace (r/.. r/static -Bitmap$Config (valueOf "ARGB_8888"))
-          bitmap (r/.. r/static -Bitmap (createBitmap width height colorspace))
+          colorspace (r/.. Bitmap$Config (valueOf "ARGB_8888"))
+          bitmap (r/.. Bitmap (createBitmap width height colorspace))
           canvas (r/new Canvas bitmap)]
       (render-android component canvas)
       (->RenderResult @script bitmap))))
