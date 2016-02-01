@@ -33,3 +33,6 @@
     (swap! script conj (forms/->Call result-ref (to-var ref) method
                                      (mapv to-var args)))
     result-ref))
+
+; TODO: ensure that it works correctly
+(def static (forms/->Ref "STATIC"))

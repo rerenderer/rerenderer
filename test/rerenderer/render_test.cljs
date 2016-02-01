@@ -9,6 +9,7 @@
             [rerenderer.lang.core :include-macros true :as l]
             [rerenderer.lang.forms :as f]
             [rerenderer.lang.gc :as gc]
+            [rerenderer.lang.utils :refer [get-all-refs]]
             [rerenderer.platform.core :as p]
             [rerenderer.render :as r]))
 
@@ -42,7 +43,7 @@
 (deftest test-render-node
   (with-platform ::test
     (let [script (r/render-node node)
-          refs (vec (gc/get-all-refs script))]
+          refs (vec (get-all-refs script))]
       (is (= script
              [(f/->New (get refs 0) "Canvas" [(f/->Val 1) (f/->Val 2)])
               (f/->New (get refs 1) "Canvas" [(f/->Val 3) (f/->Val 4)])

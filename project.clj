@@ -9,6 +9,7 @@
                  [org.clojure/core.async "0.2.371"]
                  [org.clojure/data.json "0.2.6"]]
   :source-paths ["src" "script"]
+  :jvm-opts ["-Xss32m"]
   :profiles {:dev {:dependencies [[binaryage/devtools "0.5.2"]]
                    :plugins [[lein-cljsbuild "1.1.2"]
                              [lein-figwheel "0.5.0-6"]

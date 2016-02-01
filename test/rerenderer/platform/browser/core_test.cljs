@@ -43,7 +43,7 @@
                       IComponent
                       (tag [_] "test")
                       (childs [_] [])
-                      (props [_] {:x 10 :y 10})
+                      (props [_] {:x 10 :y 10 :width 30 :height 40})
                       IBrowser
                       (render-browser [_ ctx]
                         (r/set! (r/.. ctx -fillStyle) "red")))
@@ -55,8 +55,8 @@
       (is (match script
             [[:new [:ref _] "Canvas" []]
              [:call [:ref _] [:ref _] "getContext" [[:val "2d"]]]
-             [:set [:ref _] "width" [:val nil]]
-             [:set [:ref _] "height" [:val nil]]
+             [:set [:ref _] "width" [:val 30]]
+             [:set [:ref _] "height" [:val 40]]
              [:set [:ref _] "fillStyle" [:val "red"]]] true
             _ false)))))
 

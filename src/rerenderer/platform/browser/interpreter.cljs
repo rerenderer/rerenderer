@@ -9,6 +9,7 @@
     [:ref x] (refs x)
     [:val x] x))
 
+; TODO: allow to create all available classes dynamically
 (defn create-instance
   "Creates an instance of `cls` with `args` and puts it in `refs`."
   [refs [_ ref-id] cls args]

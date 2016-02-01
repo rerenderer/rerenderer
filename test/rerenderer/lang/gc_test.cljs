@@ -3,7 +3,8 @@
   (:require [cljs.test :refer-macros [deftest is testing]]
             [rerenderer.lang.core :include-macros true :as r]
             [rerenderer.lang.forms :as f]
-            [rerenderer.lang.gc :as gc]))
+            [rerenderer.lang.gc :as gc]
+            [rerenderer.lang.utils :refer [get-all-refs]]))
 
 (deftest test-gc
   (reset! gc/refs-cache [])
@@ -15,7 +16,7 @@
       (is (= script (gc/gc script))))
     (testing "Second run with different"
       (let [gced (gc/gc script-2)
-            refs (gc/get-all-refs script)]
+            refs (get-all-refs script)]
         (is (= (filter #(instance? f/Free %) gced)
                (mapv f/->Free refs)))
         (is (= (remove #(instance? f/Free %) gced)

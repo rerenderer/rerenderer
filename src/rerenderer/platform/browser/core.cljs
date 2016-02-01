@@ -7,7 +7,7 @@
             [rerenderer.types.component :refer [IComponent props]]
             [rerenderer.types.node :refer [Node]]))
 
-; Set protocol if nothing was set before:
+; Set platform if nothing was set before:
 (when-not @platform/platform
   (reset! platform/platform :browser))
 

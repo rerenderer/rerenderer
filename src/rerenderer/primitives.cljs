@@ -2,7 +2,7 @@
   "Simple primitives for drawing. Using primitives is more preferd then
   creating components by yourself or operating with native-objects."
   (:require [rerenderer.platform.browser.core :refer [IBrowser]]
-            [rerenderer.platform.android :refer [IAndroid]]
+            [rerenderer.platform.android.core :refer [IAndroid]]
             [rerenderer.lang.core :as r :include-macros true]
             [rerenderer.types.component :refer [IComponent component->string]]))
 
@@ -126,11 +126,11 @@
     (props [_] props)
     IBrowser
     (render-browser [_ ctx]
-      (let [img (r/.. 'document (getElementById src))]
+      (let [img (r/.. r/static -document (getElementById src))]
         (r/.. ctx (drawImage img sx sy width height 0 0 width height))))
     IAndroid
     (render-android [_ canvas]
       (let [url (get-image-url src)
-            bitmap (r/.. 'RerendererLoader (bitmapFromUrl url))
-            clipped (r/.. 'Bitmap (createBitmap bitmap sx sy width height))]
+            bitmap (r/.. r/static -RerendererLoader (bitmapFromUrl url))
+            clipped (r/.. r/static -Bitmap (createBitmap bitmap sx sy width height))]
         (r/.. canvas (drawBitmap clipped 0 0 (r/new Paint)))))))
