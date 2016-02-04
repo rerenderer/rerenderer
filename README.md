@@ -70,7 +70,6 @@ Renders rectangle that changes colors on click:
 (init!
   :root-view root
   :event-handler handler
-  :events [:click]
   :state {:color [255 255 0 0]}
   :canvas (.getElementById js/document "canvas"))
 
