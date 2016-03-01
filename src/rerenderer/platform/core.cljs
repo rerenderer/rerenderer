@@ -28,3 +28,10 @@
   "(child-node, parent-node) -> script
   Render child node on top of parent node"
   get-platform)
+
+(defmulti information
+  "Returns platform information in format:
+  {:width int-px
+   :height int-px
+   :input #{:mouse :keyboard :touch}}"
+  get-platform)

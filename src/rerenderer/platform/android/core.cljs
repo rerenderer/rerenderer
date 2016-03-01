@@ -1,6 +1,6 @@
 (ns rerenderer.platform.android.core
   (:require [rerenderer.platform.core :as platform]
-            [rerenderer.platform.android.bus :refer [interprete! available?]]
+            [rerenderer.platform.android.bus :refer [interprete! available? information]]
             [rerenderer.platform.android.events :refer [bind-event!]]
             [rerenderer.types.render-result :refer [->RenderResult]]
             [rerenderer.types.component :refer [IComponent props]]
@@ -45,3 +45,7 @@
                                          (:x child) (:y child)
                                          paint)))
     @script))
+
+(defmethod platform/information :android
+  [_]
+  @information)

@@ -8,7 +8,7 @@
             [rerenderer.types.render-result :refer [RenderResult]]
             [rerenderer.types.node :refer [->Node]]
             [rerenderer.platform.android.core :refer [IAndroid]]
-            [rerenderer.platform.android.bus :refer [interprete!]]
+            [rerenderer.platform.android.bus :refer [interprete! information]]
             [rerenderer.platform.android.events :refer [bind-event!]]
             [rerenderer.platform.core :as p]))
 
@@ -64,3 +64,7 @@
       (is (match? script
             [[:new [:ref _] [:static "Paint"] []]
              [:call [:ref _] [:ref "y"] "drawBitmap" [[:ref "x"] [:val 10] [:val 20] [:ref _]]]])))))
+
+(deftest test-information
+  (with-platform :android
+    (is (= (p/information nil) @information))))

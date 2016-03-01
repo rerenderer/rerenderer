@@ -35,3 +35,9 @@
   (testing "When available"
     (set! (.-android js/window) #js {})
     (is (b/available?))))
+
+(deftest test-information
+  (.androidUpdateInformation js/window 800 600)
+  (is (= @b/information {:width 800
+                         :height 600
+                         :input #{:touch}})))

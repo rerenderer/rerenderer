@@ -47,3 +47,9 @@
     (let [ctx (r/.. (:canvas parent) (getContext "2d"))]
       (r/.. ctx (drawImage (:canvas child) (:x child) (:y child))))
     @script))
+
+(defmethod platform/information :browser
+  [{:keys [canvas]}]
+  {:width (.-width canvas)
+   :height (.-height canvas)
+   :input #{:mouse :keyboard}})

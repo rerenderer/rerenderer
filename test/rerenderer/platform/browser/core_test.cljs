@@ -70,3 +70,13 @@
       (is (match? script
             [[:call [:ref _] [:ref "y"] "getContext" [[:val "2d"]]]
              [:call [:ref _] [:ref _] "drawImage" [[:ref "x"] [:val 10] [:val 20]]]])))))
+
+(deftest test-information
+  (with-platform :browser
+    (let [canvas (.createElement js/document "canvas")]
+      (set! (.-width canvas) 200)
+      (set! (.-height canvas) 100)
+      (is (= (p/information {:canvas canvas})
+             {:width 200
+              :height 100
+              :input #{:mouse :keyboard}})))))
