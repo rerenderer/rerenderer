@@ -73,7 +73,7 @@
     (toString [this] (component->string this))
     IComponent
     (tag [_] "text")
-    (childs [_] childs)
+    (childs [_] (flatten childs))
     (props [_] props)
     IBrowser
     (render-browser [_ ctx]
@@ -122,7 +122,7 @@
     (toString [this] (component->string this))
     IComponent
     (tag [_] "image")
-    (childs [_] childs)
+    (childs [_] (flatten childs))
     (props [_] props)
     IBrowser
     (render-browser [_ ctx]

@@ -1,7 +1,6 @@
 (ns ^:figwheel-always rerenderer.render-test
   (:require [cljs.test :refer-macros [deftest is testing]]
-            [cljs.core.match :refer-macros [match]]
-            [rerenderer.test-utils :refer-macros [with-platform script-of]
+            [rerenderer.test-utils :refer-macros [with-platform script-of match?]
              :refer [make-component genref]]
             [rerenderer.types.node :refer [->Node]]
             [rerenderer.types.render-result :refer [->RenderResult cache]]
@@ -55,11 +54,8 @@
     (reset! cache {})
     (let [[ser-script root-ref] (r/render-component! component {})
           ser-script (vec ser-script)]
-      (is (match ser-script
+      (is (match? ser-script
             [[:call [:ref _] [:ref _] "render" [[:val "rect"]]]
              [:call [:ref _] [:ref _] "render" [[:val "oval"]]]
-             [:call [:ref _] [:ref _] "render" [[:ref _]]]] true
-            _ false))
-      (is (match root-ref
-            [:ref _] true
-            _ false)))))
+             [:call [:ref _] [:ref _] "render" [[:ref _]]]]))
+      (is (match? root-ref [:ref _])))))

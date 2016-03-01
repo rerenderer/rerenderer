@@ -1,7 +1,6 @@
 (ns ^:figwheel-always rerenderer.platform.android.core-test
   (:require [cljs.test :refer-macros [deftest is]]
             [cljs.core.async :refer [chan]]
-            [cljs.core.match :refer-macros [match]]
             [rerenderer.test-utils :refer-macros [with-platform script-of match?] :refer [genref]]
             [rerenderer.lang.core :include-macros true :as r]
             [rerenderer.lang.forms :refer [serialize Ref ->Ref]]

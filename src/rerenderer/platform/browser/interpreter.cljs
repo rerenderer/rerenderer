@@ -1,6 +1,5 @@
 (ns rerenderer.platform.browser.interpreter
-  (:require [cljs.core.match :refer-macros [match]]
-            [clojure.string :as string]))
+  (:require [cljs.core.match :refer-macros [match]]))
 
 (def refs-cache (atom {'document js/document}))
 
