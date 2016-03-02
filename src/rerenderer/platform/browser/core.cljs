@@ -15,16 +15,25 @@
   "Should be implemented for adding browser support to component."
   (render-browser [_ ctx]))
 
+(defn- get-canvas
+  "Return canvas from options or first canvas in the document."
+  [options]
+  (or (:canvas options)
+      (-> js/document
+          (.getElementsByTagName "canvas")
+          (aget 0))))
+
 ; Platform methods:
 (defmethod platform/apply-script! :browser
-  [script [_ root-ref] {:keys [canvas]}]
-  (let [ctx (.getContext canvas "2d")
+  [script [_ root-ref] options]
+  (let [canvas (get-canvas options)
+        ctx (.getContext canvas "2d")
         pool (interprete! script)]
     (.drawImage ctx (pool root-ref) 0 0)))
 
 (defmethod platform/listen! :browser
-  [ch {:keys [canvas]}]
-  (bind-events! ch canvas))
+  [ch options]
+  (bind-events! ch (get-canvas options)))
 
 (defmethod platform/render :browser
   [component]
@@ -49,7 +58,8 @@
     @script))
 
 (defmethod platform/information :browser
-  [{:keys [canvas]}]
-  {:width (.-width canvas)
-   :height (.-height canvas)
-   :input #{:mouse :keyboard}})
+  [options]
+  (let [canvas (get-canvas options)]
+    {:width (.-width canvas)
+     :height (.-height canvas)
+     :input #{:mouse :keyboard}}))

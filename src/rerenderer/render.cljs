@@ -34,7 +34,6 @@
     (apply-script! (map serialize script)
                    (serialize canvas) options)))
 
-
 (defn get-render-ch
   "Returns channel that waits for states."
   [root options]
