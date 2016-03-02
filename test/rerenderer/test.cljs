@@ -3,6 +3,7 @@
             [devtools.core :as devtools]
             ; Fixes stange and infrequent errors like:
             ; Uncaught TypeError: Cannot read property 'forms_test' of undefined
+            rerenderer.debug-test
             rerenderer.lang.core-test
             rerenderer.lang.forms-test
             rerenderer.lang.gc-test
