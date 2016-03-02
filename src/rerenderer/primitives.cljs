@@ -1,16 +1,26 @@
 (ns rerenderer.primitives
   "Simple primitives for drawing. Using primitives is more preferd then
   creating components by yourself or operating with native-objects."
-  (:require [rerenderer.platform.browser.core :refer [IBrowser]]
+  (:require [cljsjs.tinycolor]
+            [rerenderer.platform.browser.core :refer [IBrowser]]
             [rerenderer.platform.android.core :refer [IAndroid]]
             [rerenderer.lang.core :as r :include-macros true]
             [rerenderer.types.component :refer [IComponent component->string]]))
+
+(def ->rgba (memoize
+              (fn [color]
+                (let [{:keys [r g b a]} (-> color
+                                            clj->js
+                                            js/tinycolor
+                                            .toRgb
+                                            (js->clj :keywordize-keys true))]
+                  [r g b a]))))
 
 (defn rectangle
   "Rectangle primitive, can be nested:
 
   ```
-  (rectangle {:color [255 0 0 0] ; argb
+  (rectangle {:color \"red\"
               :width 100
               :height 300
               :x 10
@@ -20,30 +30,31 @@
   [{:keys [width height color x y]
     :or {width 0
          height 0
-         color [255 0 0 0]
+         color "#ffffff"
          x 0
          y 0}
     :as props}
    & childs]
-  (reify
-    Object
-    (toString [this] (component->string this))
-    IComponent
-    (tag [_] "rectangle")
-    (childs [_] (flatten childs))
-    (props [_] props)
-    IBrowser
-    (render-browser [_ ctx]
-      (let [[a r g b] color
-            color (str "rgba(" r ", " g ", " b ", " a ")")]
-        (r/set! (r/.. ctx -fillStyle) color))
-      (r/.. ctx (fillRect 0 0 width height)))
-    IAndroid
-    (render-android [_ canvas]
-      (let [paint (r/new Paint)
-            [a r g b] color]
-        (r/.. paint (setARGB a r g b))
-        (r/.. canvas (drawRect 0 0 width height paint))))))
+  (let [color (->rgba color)]
+    (reify
+      Object
+      (toString [this] (component->string this))
+      IComponent
+      (tag [_] "rectangle")
+      (childs [_] (flatten childs))
+      (props [_] props)
+      IBrowser
+      (render-browser [_ ctx]
+        (let [[r g b a] color
+              color (str "rgba(" r ", " g ", " b ", " a ")")]
+          (r/set! (r/.. ctx -fillStyle) color))
+        (r/.. ctx (fillRect 0 0 width height)))
+      IAndroid
+      (render-android [_ canvas]
+        (let [paint (r/new Paint)
+              [r g b a] color]
+          (r/.. paint (setARGB a r g b))
+          (r/.. canvas (drawRect 0 0 width height paint)))))))
 
 (defn text
   "Text primitive, can be nested:
@@ -52,7 +63,7 @@
   (text {:width 100
          :height 30
          :font-size 10
-         :color [255 255 255 0]
+         :color \"#ff00ff\"
          :x 10
          :y 10
          :value \"Hi there\"}
@@ -62,34 +73,35 @@
     :or {width 0
          height 0
          font-size 0
-         color [255 0 0 0]
+         color "#000000"
          x 0
          y 0
          value ""}
     :as props}
    & childs]
-  (reify
-    Object
-    (toString [this] (component->string this))
-    IComponent
-    (tag [_] "text")
-    (childs [_] (flatten childs))
-    (props [_] props)
-    IBrowser
-    (render-browser [_ ctx]
-      (let [[a r g b] color
-            color (str "rgba(" r ", " g ", " b ", " a ")")]
-        (r/set! (r/.. ctx -fillStyle) color)
-        (r/set! (r/.. ctx -font) (str font-size "px sans")))
-      (r/.. ctx (fillText value 0 font-size)))
-    IAndroid
-    (render-android [_ canvas]
-      (let [paint (r/new Paint)
-            [a r g b] color
-            y (- height y)]
-        (r/.. paint (setARGB a r g b))
-        (r/.. paint (setTextSize font-size))
-        (r/.. canvas (drawText value x y paint))))))
+  (let [color (->rgba color)]
+    (reify
+      Object
+      (toString [this] (component->string this))
+      IComponent
+      (tag [_] "text")
+      (childs [_] (flatten childs))
+      (props [_] props)
+      IBrowser
+      (render-browser [_ ctx]
+        (let [[r g b a] color
+              color (str "rgba(" r ", " g ", " b ", " a ")")]
+          (r/set! (r/.. ctx -fillStyle) color)
+          (r/set! (r/.. ctx -font) (str font-size "px sans")))
+        (r/.. ctx (fillText value 0 font-size)))
+      IAndroid
+      (render-android [_ canvas]
+        (let [paint (r/new Paint)
+              [r g b a] color
+              y (- height y)]
+          (r/.. paint (setARGB a r g b))
+          (r/.. paint (setTextSize font-size))
+          (r/.. canvas (drawText value x y paint)))))))
 
 (def get-image-url
   (memoize (fn [id]

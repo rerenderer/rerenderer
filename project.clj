@@ -1,4 +1,4 @@
-(defproject rerenderer "0.2.0"
+(defproject rerenderer "0.3.0"
   :description "Simple platform agnostic react-like library for drawing on canvas, handling events and playing sounds."
   :url "https://github.com/rerenderer/rerenderer"
   :license {:name "Eclipse Public License"
@@ -6,7 +6,8 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.7.228"]
                  [org.clojure/core.match "0.3.0-alpha4"]
-                 [org.clojure/core.async "0.2.371"]]
+                 [org.clojure/core.async "0.2.371"]
+                 [cljsjs/tinycolor "1.3.0-0"]]
   :source-paths ["src" "script"]
   :jvm-opts ["-Xss32m"]
   :profiles {:dev {:dependencies [[binaryage/devtools "0.5.2"]]
