@@ -16,8 +16,8 @@
   (render-android [_ bitmap]))
 
 (defmethod platform/apply-script! :android
-  [script root _]
-  (interprete! script root))
+  [script root options]
+  (interprete! script root options))
 
 (defmethod platform/listen! :android
   [ch _]

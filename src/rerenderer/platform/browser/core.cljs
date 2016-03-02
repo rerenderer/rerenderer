@@ -28,8 +28,13 @@
   [script [_ root-ref] options]
   (let [canvas (get-canvas options)
         ctx (.getContext canvas "2d")
-        pool (interprete! script)]
-    (.drawImage ctx (pool root-ref) 0 0)))
+        pool (interprete! script)
+        rendered (pool root-ref)]
+    (if (:scale options)
+      (.drawImage ctx rendered
+                  0 0 (.-width rendered) (.-height rendered)
+                  0 0 (.-width canvas) (.-height canvas))
+      (.drawImage ctx rendered 0 0))))
 
 (defmethod platform/listen! :browser
   [ch options]

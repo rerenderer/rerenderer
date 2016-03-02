@@ -14,10 +14,18 @@
         script (mapv serialize script)]
     (set! (.-android js/window) #js {:interprete #(reset! serialised-data %)})
     (with-platform :android
-      (b/interprete! script [:ref (:id ref)])
-      (is (= @serialised-data
-             (to-json {:script [[:new [:ref (:id ref)] [:static "Bitmap"] []]]
-                         :root [:ref (:id ref)]}))))))
+      (testing "without scale"
+        (b/interprete! script [:ref (:id ref)] {})
+        (is (= @serialised-data
+               (to-json {:script [[:new [:ref (:id ref)] [:static "Bitmap"] []]]
+                         :root [:ref (:id ref)]
+                         :scale false}))))
+      (testing "with scale"
+        (b/interprete! script [:ref (:id ref)] {:scale true})
+        (is (= @serialised-data
+               (to-json {:script [[:new [:ref (:id ref)] [:static "Bitmap"] []]]
+                         :root [:ref (:id ref)]
+                         :scale true})))))))
 
 (deftest test-on-event!
   (let [events (atom [])

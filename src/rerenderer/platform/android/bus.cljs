@@ -10,9 +10,10 @@
 
 (defn interprete!
   "Interpretes script on android side."
-  [script root]
+  [script root options]
   (.interprete js/android (to-json {:script script
-                                    :root root})))
+                                    :root root
+                                    :scale (boolean (:scale options))})))
 
 (defn on-event!
   "Subscribes to events, event have format {:event name **props}"

@@ -65,7 +65,7 @@
                  [:call [:ref "c"] [:ref "a"] "test" [[:val 10] [:ref "b"]]])]
       (is (= (refs "c") 65)))))
 
-(deftest test-interprete
+(deftest test-interprete!
   (reset! i/refs-cache {"a" 10
                         "b" #js {"method" (fn [a b] (+ a b))}})
   (i/interprete! [[:new [:ref "x"] [:static "Event"] [[:val "click"]]]
