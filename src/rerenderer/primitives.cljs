@@ -143,6 +143,6 @@
     IAndroid
     (render-android [_ canvas]
       (let [url (get-image-url src)
-            bitmap (r/.. RerendererLoader (bitmapFromUrl url))
-            clipped (r/.. Bitmap (createBitmap bitmap sx sy width height))]
+            bitmap (r/.. com -nvbn -tryrerenderer -RerendererLoader (bitmapFromUrl url))
+            clipped (r/.. android -graphics -Bitmap (createBitmap bitmap sx sy width height))]
         (r/.. canvas (drawBitmap clipped 0 0 (r/new Paint)))))))
