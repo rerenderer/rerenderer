@@ -14,7 +14,7 @@
                                             js/tinycolor
                                             .toRgb
                                             (js->clj :keywordize-keys true))]
-                  [r g b a]))))
+                  [r g b (* 255 a)]))))
 
 (defn rectangle
   "Rectangle primitive, can be nested:
@@ -27,15 +27,17 @@
               :y 10}
     childs)
   ```"
-  [{:keys [width height color x y]
-    :or {width 0
-         height 0
-         color "#ffffff"
-         x 0
-         y 0}
-    :as props}
-   & childs]
-  (let [color (->rgba color)]
+  [{:keys [width height color x y] :as props} & childs]
+  {:pre [(not (nil? width))
+         (not (nil? height))
+         (not (nil? color))]}
+  (let [color (->rgba color)
+        x (or x 0)
+        y (or y 0)
+        props (assoc props
+                :color color
+                :x x
+                :y y)]
     (reify
       Object
       (toString [this] (component->string this))
@@ -51,7 +53,7 @@
         (r/.. ctx (fillRect 0 0 width height)))
       IAndroid
       (render-android [_ canvas]
-        (let [paint (r/new Paint)
+        (let [paint (r/new (r/.. android -graphics -Paint))
               [r g b a] color]
           (r/.. paint (setARGB a r g b))
           (r/.. canvas (drawRect 0 0 width height paint)))))))
@@ -69,17 +71,19 @@
          :value \"Hi there\"}
     childs)
   ```"
-  [{:keys [width height font-size color x y value]
-    :or {width 0
-         height 0
-         font-size 0
-         color "#000000"
-         x 0
-         y 0
-         value ""}
-    :as props}
-   & childs]
-  (let [color (->rgba color)]
+  [{:keys [width height font-size color x y value] :as props} & childs]
+  {:pre [(not (nil? width))
+         (not (nil? height))
+         (not (nil? font-size))
+         (not (nil? color))
+         (not (nil? value))]}
+  (let [color (->rgba color)
+        x (or x 0)
+        y (or y 0)
+        props (assoc props
+                :color color
+                :x x
+                :y y)]
     (reify
       Object
       (toString [this] (component->string this))
@@ -96,7 +100,7 @@
         (r/.. ctx (fillText value 0 font-size)))
       IAndroid
       (render-android [_ canvas]
-        (let [paint (r/new Paint)
+        (let [paint (r/new (r/.. android -graphics -Paint))
               [r g b a] color
               y (- height y)]
           (r/.. paint (setARGB a r g b))
@@ -120,29 +124,33 @@
           :y 20}
     childs)
   ```"
-  [{:keys [width height src x y sx sy]
-    :or {width 0
-         height 0
-         x 0
-         y 0
-         sx 0
-         sy 0}
-    :as props}
-   & childs]
-  (reify
-    Object
-    (toString [this] (component->string this))
-    IComponent
-    (tag [_] "image")
-    (childs [_] (flatten childs))
-    (props [_] props)
-    IBrowser
-    (render-browser [_ ctx]
-      (let [img (r/.. document (getElementById src))]
-        (r/.. ctx (drawImage img sx sy width height 0 0 width height))))
-    IAndroid
-    (render-android [_ canvas]
-      (let [url (get-image-url src)
-            bitmap (r/.. com -nvbn -tryrerenderer -RerendererLoader (bitmapFromUrl url))
-            clipped (r/.. android -graphics -Bitmap (createBitmap bitmap sx sy width height))]
-        (r/.. canvas (drawBitmap clipped 0 0 (r/new Paint)))))))
+  [{:keys [width height src x y sx sy] :as props} & childs]
+  {:pre [(not (nil? width))
+         (not (nil? height))
+         (not (nil? src))]}
+  (let [x (or x 0)
+        y (or y 0)
+        sx (or sx 0)
+        sy (or sy 0)
+        props (assoc props
+                :x x
+                :y y
+                :sx sx
+                :sy sy)]
+    (reify
+      Object
+      (toString [this] (component->string this))
+      IComponent
+      (tag [_] "image")
+      (childs [_] (flatten childs))
+      (props [_] props)
+      IBrowser
+      (render-browser [_ ctx]
+        (let [img (r/.. document (getElementById src))]
+          (r/.. ctx (drawImage img sx sy width height 0 0 width height))))
+      IAndroid
+      (render-android [_ canvas]
+        (let [url (get-image-url src)
+              bitmap (r/.. com -nvbn -tryrerenderer -RerendererLoader (bitmapFromUrl url))
+              clipped (r/.. android -graphics -Bitmap (createBitmap bitmap sx sy width height))]
+          (r/.. canvas (drawBitmap clipped 0 0 (r/new Paint))))))))
