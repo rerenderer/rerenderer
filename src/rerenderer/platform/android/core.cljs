@@ -29,7 +29,7 @@
          (satisfies? IAndroid component)]}
   (r/recording script
     (let [{:keys [width height]} (props component)
-          colorspace (r/.. android -graphics -Bitmap -Config (valueOf "ARGB_8888"))
+          colorspace (r/.. android -graphics -Bitmap$Config -ARGB_8888)
           bitmap (r/.. android -graphics -Bitmap (createBitmap width height colorspace))
           canvas (r/new (r/.. android -graphics -Canvas) bitmap)]
       (render-android component canvas)
@@ -40,10 +40,11 @@
   {:pre [(instance? Node child)
          (instance? Node parent)]}
   (r/recording script
-    (let [paint (r/new Paint)]
-      (r/.. (:canvas parent) (drawBitmap (:canvas child)
-                                         (:x child) (:y child)
-                                         paint)))
+    (let [paint (r/new (r/.. android -graphics -Paint))
+          parent-canvas (r/new (r/.. android -graphics -Canvas) (:canvas parent))]
+      (r/.. parent-canvas (drawBitmap (:canvas child)
+                                      (:x child) (:y child)
+                                      paint)))
     @script))
 
 (defmethod platform/information :android

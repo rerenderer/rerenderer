@@ -46,9 +46,8 @@
       (is (instance? Ref (:canvas result)))
       (is (match? script
             [[:get [:ref _] [:static "android"] "graphics"]
-             [:get [:ref _] [:ref _] "Bitmap"]
-             [:get [:ref _] [:ref _] "Config"]
-             [:call [:ref _] [:ref _] "valueOf" [[:val "ARGB_8888"]]]
+             [:get [:ref _] [:ref _] "Bitmap$Config"]
+             [:get [:ref _] [:ref _] "ARGB_8888"]
              [:get [:ref _] [:static "android"] "graphics"]
              [:get [:ref _] [:ref _] "Bitmap"]
              [:call [:ref _] [:ref _] "createBitmap" [[:val 20] [:val 20] [:ref _]]]
@@ -68,8 +67,13 @@
           ; It's simple to test serialized version of big script
           script (mapv serialize (p/render-to child-node parent-node))]
       (is (match? script
-            [[:new [:ref _] [:static "Paint"] []]
-             [:call [:ref _] [:ref "y"] "drawBitmap" [[:ref "x"] [:val 10] [:val 20] [:ref _]]]])))))
+            [[:get [:ref _] [:static "android"] "graphics"]
+            [:get [:ref _] [:ref _] "Paint"]
+            [:new [:ref _] [:ref _] []]
+            [:get [:ref _] [:static "android"] "graphics"]
+            [:get [:ref _] [:ref _] "Canvas"]
+            [:new [:ref _] [:ref _] [[:ref _]]]
+            [:call [:ref _] [:ref _] "drawBitmap" [[:ref _] [:val 10] [:val 20] [:ref _]]]])))))
 
 (deftest test-information
   (with-platform :android
