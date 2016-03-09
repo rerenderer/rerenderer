@@ -38,6 +38,7 @@
 (def calculate-path
   (memoize
     (fn [component]
-      (str (tag component) ":" (props component) ":["
-           (string/join ":" (map calculate-path (childs component)))
-           "]"))))
+      (let [cache-props (dissoc (props component) :x :y)]
+        (str (tag component) ":" cache-props ":["
+             (string/join ":" (map calculate-path (childs component)))
+             "]")))))

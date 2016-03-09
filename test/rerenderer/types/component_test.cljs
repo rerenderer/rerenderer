@@ -15,7 +15,7 @@
        "    (link {:href :test}))"))
 
 (def tree-path
-  (str "rect:{:x 1, :y 2}:["
+  (str "rect:{}:["
        "oval:{:z 4, :color \"red\"}:["
        "text:{:value \"test\"}:[]"
        "]:link:{:href :test}:[]]"))
