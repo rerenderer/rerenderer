@@ -1,6 +1,6 @@
 (ns rerenderer.platform.browser.core
   (:require [rerenderer.platform.core :as platform]
-            [rerenderer.platform.browser.interpreter :refer [interprete!]]
+            [rerenderer.platform.browser.interpreter :refer [interpret!]]
             [rerenderer.platform.browser.events :refer [bind-events!]]
             [rerenderer.lang.core :as r :include-macros true]
             [rerenderer.types.render-result :refer [->RenderResult]]
@@ -28,7 +28,7 @@
   [script [_ root-ref] options]
   (let [canvas (get-canvas options)
         ctx (.getContext canvas "2d")
-        pool (interprete! script)
+        pool (interpret! script)
         rendered (pool root-ref)]
     (if (:scale options)
       (.drawImage ctx rendered

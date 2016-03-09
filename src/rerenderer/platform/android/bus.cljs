@@ -8,10 +8,10 @@
   []
   (aget js/window "android"))
 
-(defn interprete!
+(defn interpret!
   "Interpretes script on android side."
   [script root options]
-  (.interprete js/android (to-json {:script script
+  (.interpret js/android (to-json {:script script
                                     :root root
                                     :scale (boolean (:scale options))})))
 

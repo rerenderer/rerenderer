@@ -43,7 +43,7 @@
   [refs [_ ref]]
   (dissoc refs ref))
 
-(defn interprete-instruction
+(defn interpret-instruction
   "Interpretes a single `instruction` of script and returns changed `refs`."
   [refs instruction]
   (try
@@ -58,7 +58,7 @@
       (.warn js/console "Can't execute instruction" instruction ":" e)
       (throw e))))
 
-(defn interprete!
+(defn interpret!
   "Interpretes `script` and returns hash-map with vars."
   [script]
-  (swap! refs-cache #(reduce interprete-instruction % script)))
+  (swap! refs-cache #(reduce interpret-instruction % script)))

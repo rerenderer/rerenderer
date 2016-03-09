@@ -7,21 +7,21 @@
             [rerenderer.platform.utils :refer [to-json from-json]]
             [rerenderer.platform.android.bus :as b]))
 
-(deftest test-interprete!
+(deftest test-interpret!
   (let [serialised-data (atom nil)
         script (script-of (r/new Bitmap))
         [ref] (vec (get-all-refs script))
         script (mapv serialize script)]
-    (set! (.-android js/window) #js {:interprete #(reset! serialised-data %)})
+    (set! (.-android js/window) #js {:interpret #(reset! serialised-data %)})
     (with-platform :android
       (testing "without scale"
-        (b/interprete! script [:ref (:id ref)] {})
+        (b/interpret! script [:ref (:id ref)] {})
         (is (= @serialised-data
                (to-json {:script [[:new [:ref (:id ref)] [:static "Bitmap"] []]]
                          :root [:ref (:id ref)]
                          :scale false}))))
       (testing "with scale"
-        (b/interprete! script [:ref (:id ref)] {:scale true})
+        (b/interpret! script [:ref (:id ref)] {:scale true})
         (is (= @serialised-data
                (to-json {:script [[:new [:ref (:id ref)] [:static "Bitmap"] []]]
                          :root [:ref (:id ref)]

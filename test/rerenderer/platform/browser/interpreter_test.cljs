@@ -47,28 +47,28 @@
 
 (deftest test-interprete-instruction
   (testing ":new"
-    (let [refs (i/interprete-instruction {}
-                 [:new [:ref "x"] [:static "Event"] [[:val "click"]]])]
+    (let [refs (i/interpret-instruction {}
+                                        [:new [:ref "x"] [:static "Event"] [[:val "click"]]])]
       (is (= (.-type (refs "x")) "click"))))
   (testing ":set"
     (let [refs {"x" #js {}}
-          refs (i/interprete-instruction refs
-                 [:set [:ref "x"] "test" [:val 23]])]
+          refs (i/interpret-instruction refs
+                                        [:set [:ref "x"] "test" [:val 23]])]
       (is (= (.-test (refs "x")) 23))))
   (testing ":get"
-    (let [refs (i/interprete-instruction {"a" #js {"test" "test"}}
-                 [:get [:ref "b"] [:ref "a"] "test"])]
+    (let [refs (i/interpret-instruction {"a" #js {"test" "test"}}
+                                        [:get [:ref "b"] [:ref "a"] "test"])]
       (is (= (refs "b") "test"))))
   (testing ":call"
-    (let [refs (i/interprete-instruction {"a" #js {"test" (fn [a b] (+ a b))}
+    (let [refs (i/interpret-instruction {"a" #js {"test" (fn [a b] (+ a b))}
                                           "b" 55}
-                 [:call [:ref "c"] [:ref "a"] "test" [[:val 10] [:ref "b"]]])]
+                                        [:call [:ref "c"] [:ref "a"] "test" [[:val 10] [:ref "b"]]])]
       (is (= (refs "c") 65)))))
 
 (deftest test-interprete!
   (reset! i/refs-cache {"a" 10
                         "b" #js {"method" (fn [a b] (+ a b))}})
-  (i/interprete! [[:new [:ref "x"] [:static "Event"] [[:val "click"]]]
+  (i/interpret! [[:new [:ref "x"] [:static "Event"] [[:val "click"]]]
                   [:set [:ref "b"] "z" [:ref "a"]]
                   [:get [:ref "m"] [:ref "b"] "z"]
                   [:call [:ref "z"] [:ref "b"] "method" [[:val 2] [:ref "a"]]]

@@ -1,6 +1,6 @@
 (ns rerenderer.platform.android.core
   (:require [rerenderer.platform.core :as platform]
-            [rerenderer.platform.android.bus :refer [interprete! available? information]]
+            [rerenderer.platform.android.bus :refer [interpret! available? information]]
             [rerenderer.platform.android.events :refer [bind-event!]]
             [rerenderer.types.render-result :refer [->RenderResult]]
             [rerenderer.types.component :refer [IComponent props]]
@@ -17,7 +17,7 @@
 
 (defmethod platform/apply-script! :android
   [script root options]
-  (interprete! script root options))
+  (interpret! script root options))
 
 (defmethod platform/listen! :android
   [ch _]

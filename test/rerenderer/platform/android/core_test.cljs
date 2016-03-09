@@ -8,7 +8,7 @@
             [rerenderer.types.render-result :refer [RenderResult]]
             [rerenderer.types.node :refer [->Node]]
             [rerenderer.platform.android.core :refer [IAndroid]]
-            [rerenderer.platform.android.bus :refer [interprete! information]]
+            [rerenderer.platform.android.bus :refer [interpret! information]]
             [rerenderer.platform.android.events :refer [bind-event!]]
             [rerenderer.platform.core :as p]))
 
@@ -16,7 +16,7 @@
   (with-platform :android
     (let [script (script-of (r/new Bitmap [1 2]))
           root (genref)]
-      (with-redefs [interprete! (fn [script- root-]
+      (with-redefs [interpret! (fn [script- root-]
                                   (is (= (mapv serialize script) script-))
                                   (is (= (serialize root) root-)))]
         (p/apply-script! (mapv serialize script) (serialize root))))))
