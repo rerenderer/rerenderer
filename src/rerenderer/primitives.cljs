@@ -108,8 +108,11 @@
           (r/.. canvas (drawText value x y paint)))))))
 
 (def get-image-url
-  (memoize (fn [id]
-             (.. js/document (getElementById id) -src))))
+  (memoize (fn [src]
+             (str (.. document -location -protocol)
+                  ":/"
+                  (.. document -location -host)
+                  src))))
 
 (defn image
   "Image primitive, can be nested:
@@ -117,7 +120,7 @@
   ```
   (image {:width 100
           :height 200
-          :src \"bird\" ; `id` of image on bootstraping  html page
+          :src \"/bird.png\" ; absolute path to image
           :sx 20 ; x on source image, usable for cutting sprites
           :sy 30 ; y on source image, usable for cutting sprites
           :x 10
