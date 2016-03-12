@@ -1,4 +1,4 @@
-(defproject rerenderer "0.3.0"
+(defproject org.rerenderer/rerenderer "0.3.0"
   :description "Simple platform agnostic react-like library for drawing on canvas, handling events and playing sounds."
   :url "https://github.com/rerenderer/rerenderer"
   :license {:name "Eclipse Public License"
@@ -22,15 +22,6 @@
                                                :compiler {:output-to "target/cljs-test.js"
                                                           :optimizations :whitespace
                                                           :pretty-print true}}
-                                        :examples {:source-paths ["src" "example"]
-                                                   :figwheel true
-                                                   :compiler {:output-to "resources/public/compiled/main.js"
-                                                              :output-dir "resources/public/compiled"
-                                                              :asset-path "/compiled"
-                                                              :main "rerenderer.example.core"
-                                                              :source-map true
-                                                              :optimizations :none
-                                                              :pretty-print false}}
                                         :live-test {:source-paths ["src" "test"]
                                                     :figwheel true
                                                     :compiler {:output-to "resources/public/compiled/main.js"

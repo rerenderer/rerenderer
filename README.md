@@ -1,6 +1,6 @@
 # rerenderer
 
-[![Clojars Project](http://clojars.org/rerenderer/latest-version.svg)](http://clojars.org/rerenderer)
+[![Clojars Project](https://img.shields.io/clojars/v/org.rerenderer/rerenderer.svg)](https://clojars.org/org.rerenderer/rerenderer)
 
 [Documentation.](https://rerenderer.github.io/rerenderer/)
 
