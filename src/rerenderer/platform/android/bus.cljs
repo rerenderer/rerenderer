@@ -12,8 +12,8 @@
   "Interpretes script on android side."
   [script root options]
   (.interpret js/android (to-json {:script script
-                                    :root root
-                                    :scale (boolean (:scale options))})))
+                                   :root root
+                                   :scale (boolean (:scale options))})))
 
 (defn on-event!
   "Subscribes to events, event have format {:event name **props}"
@@ -31,4 +31,3 @@
       #(swap! information assoc
               :width %1
               :height %2))
-
