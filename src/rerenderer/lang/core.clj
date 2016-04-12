@@ -3,7 +3,7 @@
   (:require [clojure.string :refer [join]]
             [cljs.analyzer :refer [resolve-var]]))
 
-(defmacro wrap
+(defmacro ^:no-doc wrap
   [x]
   (if (symbol? x)
     (let [full-ns (-> &env :ns :name)
@@ -15,11 +15,15 @@
     x))
 
 (defmacro new
-  "Works like `new` or `class.`, usage:
+  "Works like clojure `new` macro.
+
+  Should be used only inside components render methods.
+
+  Example:
 
   ```
-  (r/new 'Bitmap)
-  (r/new 'Rectangle 100 100 200 200)
+  (r/new Bitmap)
+  (r/new Rectangle 100 100 200 200)
   ```"
   [cls & args]
   `(rnew (wrap ~cls) ~(vec args)))
@@ -37,12 +41,16 @@
       `(rcall! ~x ~(name form) []))
     `(rcall! ~x ~(name (first form)) ~(vec (rest form)))))
 
-(defmacro dot-dot
+(defmacro ^:no-doc dot-dot
   ([x form] (dot x form))
   ([x form & more] `(dot-dot ~(dot x form) ~@more)))
 
 (defmacro ..
-  "Usage:
+  "Works like clojure `..` macro.
+
+  Should be used only inside components render methods.
+
+  Example:
 
    ```
    (r/.. canvas (getContext \"2d\"))
@@ -52,7 +60,11 @@
   `(dot-dot (wrap ~x) ~form ~@more))
 
 (defmacro set!
-  "Usage:
+  "Works like clojure `set!` macro.
+
+  Should be used only inside components render methods.
+
+  Example:
 
   ```
   (r/set! (r/.. canvas -height) 200)
@@ -65,7 +77,7 @@
               (first path))]
     `(rset! ~obj ~attr ~value)))
 
-(defmacro recording
+(defmacro ^:no-doc recording
   "Records script in `script-var` atom."
   [script-var & body]
   `(do (reset! script [])

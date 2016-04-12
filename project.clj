@@ -13,10 +13,16 @@
   :profiles {:dev {:dependencies [[binaryage/devtools "0.5.2"]]
                    :plugins [[lein-cljsbuild "1.1.2"]
                              [lein-figwheel "0.5.0-6"]
-                             [lein-codox "0.9.0"]]
+                             [lein-codox "0.9.4"]]
                    :codox {:language :clojurescript
-                           :namespaces [rerenderer.core rerenderer.lang.interop rerenderer.primitives]
-                           :doc/format :markdown
+                           :namespaces [rerenderer.core
+                                        rerenderer.primitives
+                                        rerenderer.debug
+                                        rerenderer.lang.core
+                                        rerenderer.platform.android.core
+                                        rerenderer.platform.browser.core
+                                        rerenderer.types.component]
+                           :metadata {:doc/format :markdown}
                            :output-path "docs"}
                    :cljsbuild {:builds {:test {:source-paths ["test" "src"]
                                                :compiler {:output-to "target/cljs-test.js"

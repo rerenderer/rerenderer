@@ -12,8 +12,22 @@
   (reset! platform/platform :android))
 
 (defprotocol IAndroid
-  "Should be implemented for adding android support to component."
-  (render-android [_ bitmap]))
+  "Component that implement that protocol support rendering on Android."
+  (render-android [_ bitmap]
+                  "Render component on `android.graphics.Bitmap`.
+
+                  Example:
+
+                  ```
+                  (reify
+                    IComponent
+                    ...
+                    IAndroid
+                    (render-android [_ bitmap]
+                      (let [paint (r/new (r/.. android -graphics -Paint))]
+                        (r/.. paint (setARGB 255 255 0 0))
+                        (r/.. bitmap (drawRect 0 0 100 100 paint))))
+                  ```"))
 
 (defmethod platform/apply-script! :android
   [script root options]

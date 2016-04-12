@@ -18,9 +18,9 @@
      IAndroid
      ...)
    ```"
-  (tag [this])
-  (childs [this])
-  (props [this]))
+  (tag [this] "Component's tag, like `rectangle`.")
+  (childs [this] "Component's childs if it nested.")
+  (props [this] "Component's properties, like `{:width 100}`."))
 
 (defn component->string
   "Translates component to string, thath looks like component usage in views."
@@ -35,7 +35,7 @@
            (str "\n" indent childs-text)
            "") ")")))
 
-(def calculate-path
+(def ^:no-doc calculate-path
   (memoize
     (fn [component]
       (let [cache-props (dissoc (props component) :x :y)]

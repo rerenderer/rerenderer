@@ -1,15 +1,22 @@
 (ns rerenderer.lang.core
+  "Sugar that simplifies writting code that operates with platforms.
+
+  This namespace will work only if required like:
+
+  ```
+  (:require [rerenderer.lang.core :as r :include-macros true])
+  ```"
   (:require [rerenderer.lang.forms :as forms]))
 
 (def ^:no-doc script (atom []))
 
-(defn to-var
+(defn ^:no-doc to-var
   [x]
   (if (satisfies? forms/IVar x)
     x
     (forms/->Val x)))
 
-(defn make-ref [] (forms/->Ref (gensym)))
+(defn ^:no-doc make-ref [] (forms/->Ref (gensym)))
 
 (defn ^:no-doc rnew
   [cls args]

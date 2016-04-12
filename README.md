@@ -24,55 +24,54 @@ or even iOS canvas (not implemented).
 
 ## Usage
 
-Create new project from template:
+Create new project from template (name should contains at least one dot):
 
 ```bash
-lein new rerenderer-game my-super-game
+lein new rerenderer-game com.my-super-game
 ```
 
-Renders rectangle that changes colors on click:
+And start developing with figwheel with:
 
-```clojure
-(ns my-super-game.core
-  (:require-macros [cljs.core.async.macros :refer [go-loop]])
-  (:require [cljs.core.match :refer-macros [match]]
-            [cljs.core.async :refer [<!]]
-            [rerenderer.core :refer [init!]]
-            [rerenderer.primitives :as p]))
-    
-(defn root
-  [{:keys [color]} options]
-  (p/rectangle {:color color
-                :width 100
-                :height 100}))
-
-(def colors
-  [[255 255 0 0]
-   [255 0 255 0]
-   [255 0 0 255]])
-
-(defn change-color!
-  [state-atom]
-  (let [current-color (:color @state-atom)
-        index (.indexOf (to-array colors) current-color)
-        next-index (-> index inc (mod (count colors)))
-        next-color (get colors next-index)]
-    (swap! state-atom assoc :color next-color)))
-
-(defn handler
-  [event-ch state-atom options]
-  (go-loop []
-    (match (<! event-ch)
-      [:click _] (change-color! state-atom)
-      unhandled (println "Unhandled event" unhandled))
-    (recur)))
-
-(init!
-  :root-view root
-  :event-handler handler
-  :state {:color [255 255 0 0]}
-  :canvas (.getElementById js/document "canvas"))
-
+```bash
+lein figwheel
 ```
 
-## TODO: Usage on android
+For building standalone version run:
+
+```bash
+lein cljsbuild once
+```
+
+For more information look at [lein-figwheel](https://github.com/bhauman/lein-figwheel) and [lein-cljsbuild](https://github.com/bhauman/lein-cljsbuild).
+
+## Android
+
+For using rerenderer figwheel on android please change `getUrl` in your `MainActivity`, like:
+
+```java
+public class MainActivity extends RerendererActivity {
+    @Override
+    public String getUrl() {
+        return "http://192.168.2.100:3449";
+    }
+}
+```
+
+Host should be the same as in `:figwheel :websocket-host`.
+
+For building android version for figwheel use:
+
+```bash
+cd android
+chmod +x gradlew
+./gradlew installDebug
+```
+
+If you want to build standalone version for android, change `getUrl` to 
+`"file:///android_asset/index.html"` and:
+
+```bash
+lein cljsbuild once
+cd android 
+./gradlew copyAssets installDebug
+```

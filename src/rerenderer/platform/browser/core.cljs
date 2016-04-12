@@ -12,8 +12,21 @@
   (reset! platform/platform :browser))
 
 (defprotocol IBrowser
-  "Should be implemented for adding browser support to component."
-  (render-browser [_ ctx]))
+  "Component that implement that protocol support rendering in browser."
+  (render-browser [_ ctx]
+                  "Render component on canvas context.
+
+                  Example:
+
+                  ```
+                  (reify
+                    IComponent
+                    ...
+                    IBrowser
+                    (render-browser [_ ctx]
+                      (r/set! (r/.. ctx -fillStyle) \"rgb(255, 0, 0)\")
+                      (r/.. ctx (fillRect 0 0 100 100))))
+                  ```"))
 
 (defn- get-canvas
   "Return canvas from options or first canvas in the document."
