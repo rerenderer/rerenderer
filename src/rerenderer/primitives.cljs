@@ -2,6 +2,7 @@
   "Simple primitives for drawing. Using primitives is more preferd then
   creating components by yourself or operating with native-objects."
   (:require [cljsjs.tinycolor]
+            [clojure.string :refer [starts-with?]]
             [rerenderer.platform.browser.core :refer [IBrowser]]
             [rerenderer.platform.android.core :refer [IAndroid]]
             [rerenderer.lang.core :as r :include-macros true]
@@ -139,10 +140,12 @@
 
 (def ^{:doc "Get full image url by relative src."} get-image-url
   (memoize (fn [src]
-             (str (.. document -location -protocol)
-                  ":/"
-                  (.. document -location -host)
-                  src))))
+             (if (or (starts-with? src "http://") (starts-with? src "https://"))
+               src
+               (str (.. document -location -protocol)
+                    ":/"
+                    (.. document -location -host)
+                    src)))))
 
 (defn image
   "Image primitive, can be nested.
