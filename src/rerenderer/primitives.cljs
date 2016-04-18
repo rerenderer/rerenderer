@@ -142,9 +142,9 @@
   (memoize (fn [src]
              (if (or (starts-with? src "http://") (starts-with? src "https://"))
                src
-               (str (.. document -location -protocol)
+               (str (.. js/document -location -protocol)
                     ":/"
-                    (.. document -location -host)
+                    (.. js/document -location -host)
                     src)))))
 
 (defn image
