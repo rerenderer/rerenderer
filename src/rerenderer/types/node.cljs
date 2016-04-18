@@ -8,10 +8,12 @@
 (defn Component->Node
   "Creates node from component."
   [component]
-  (let [{:keys [script canvas]} (Component->RenderResult component)
-        {:keys [x y]} (props component)]
-    (map->Node {:childs (mapv Component->Node (childs component))
-                :script script
-                :canvas canvas
-                :x x
-                :y y})))
+  (if component
+    (let [{:keys [script canvas]} (Component->RenderResult component)
+          {:keys [x y]} (props component)
+          non-empty-childs (->> component childs flatten (remove nil?))]
+      (map->Node {:childs (mapv Component->Node non-empty-childs)
+                  :script script
+                  :canvas canvas
+                  :x x
+                  :y y}))))

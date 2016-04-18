@@ -5,10 +5,14 @@
             [rerenderer.types.render-result :refer [Component->RenderResult ->RenderResult]]))
 
 (def component (make-component "rect" {:x 1 :y 2}
-                 (make-component "oval" {:x 3 :y 4})))
+                 (make-component "oval" {:x 3 :y 4}
+                   nil
+                   [nil nil]
+                   [(make-component "line" {:x 5 :y 12})])))
 
 (deftest test-Component->Node
   (with-redefs [Component->RenderResult #(->RenderResult :stub :stub)]
     (is (= (Component->Node component)
-           (->Node [(->Node [] :stub :stub 3 4)]
+           (->Node [(->Node [(->Node [] :stub :stub 5 12)]
+                            :stub :stub 3 4)]
                    :stub :stub 1 2)))))
