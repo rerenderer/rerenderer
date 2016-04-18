@@ -40,6 +40,8 @@
   (let [ch (chan (sliding-buffer 1))]
     (go-loop []
       (<! (timeout (/ 1000 (get options :fps-limit 25))))
-      (render-component! (root (<! ch)) options)
+      (try
+        (render-component! (root (<! ch)) options)
+        (catch :default e (.error js/console "Rendering failed" e)))
       (recur))
     ch))
