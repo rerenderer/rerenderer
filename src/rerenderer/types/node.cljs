@@ -10,9 +10,8 @@
   [component]
   (if component
     (let [{:keys [script canvas]} (Component->RenderResult component)
-          {:keys [x y]} (props component)
-          non-empty-childs (->> component childs flatten (remove nil?))]
-      (map->Node {:childs (mapv Component->Node non-empty-childs)
+          {:keys [x y]} (props component)]
+      (map->Node {:childs (mapv Component->Node (childs component))
                   :script script
                   :canvas canvas
                   :x x

@@ -6,7 +6,8 @@
             [rerenderer.platform.browser.core :refer [IBrowser]]
             [rerenderer.platform.android.core :refer [IAndroid]]
             [rerenderer.lang.core :as r :include-macros true]
-            [rerenderer.types.component :refer [IComponent component->string]]))
+            [rerenderer.types.component :refer [IComponent component->string
+                                                prepare-childs]]))
 
 (def ^{:doc "Converts color to rgba, supported formats: `#ff0000`, `rgb(255, 255, 0)`, `argb(255, 0, 0, 0)`, `red`."}
 ->rgba
@@ -59,7 +60,7 @@
       (toString [this] (component->string this))
       IComponent
       (tag [_] "rectangle")
-      (childs [_] childs)
+      (childs [_] (prepare-childs childs))
       (props [_] props)
       IBrowser
       (render-browser [_ ctx]
@@ -120,7 +121,7 @@
       (toString [this] (component->string this))
       IComponent
       (tag [_] "text")
-      (childs [_] childs)
+      (childs [_] (prepare-childs childs))
       (props [_] props)
       IBrowser
       (render-browser [_ ctx]
@@ -192,7 +193,7 @@
       (toString [this] (component->string this))
       IComponent
       (tag [_] "image")
-      (childs [_] childs)
+      (childs [_] (prepare-childs childs))
       (props [_] props)
       IBrowser
       (render-browser [_ ctx]

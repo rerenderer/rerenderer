@@ -26,3 +26,7 @@
 (deftest test-calculate-path
   (is (= (c/calculate-path tree)
          tree-path)))
+
+(deftest test-prepare-childs
+  (is (= (c/prepare-childs [nil :a [nil :b] [:c [nil]]])
+         [:a :b :c])))

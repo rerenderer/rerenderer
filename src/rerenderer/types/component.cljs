@@ -22,6 +22,11 @@
   (childs [this] "Component's childs if it nested.")
   (props [this] "Component's properties, like `{:width 100}`."))
 
+(defn prepare-childs
+  "Returns flatten list of non-empty childs."
+  [childs]
+  (->> childs flatten (remove nil?)))
+
 (defn component->string
   "Translates component to string, thath looks like component usage in views."
   [component]

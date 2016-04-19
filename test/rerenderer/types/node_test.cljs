@@ -6,9 +6,7 @@
 
 (def component (make-component "rect" {:x 1 :y 2}
                  (make-component "oval" {:x 3 :y 4}
-                   nil
-                   [nil nil]
-                   [(make-component "line" {:x 5 :y 12})])))
+                   (make-component "line" {:x 5 :y 12}))))
 
 (deftest test-Component->Node
   (with-redefs [Component->RenderResult #(->RenderResult :stub :stub)]
