@@ -1,5 +1,6 @@
 (ns rerenderer.types.component
-  (:require [clojure.string :as string]))
+  (:require [clojure.string :as string]
+            [cljsjs.tinycolor]))
 
 (defprotocol IComponent
   "For creating component you should implement IComponent, platform-specific protocls
@@ -47,3 +48,25 @@
         (str (tag component) ":" cache-props ":["
              (string/join ":" (map calculate-path (childs component)))
              "]")))))
+
+(def ^{:doc "Converts color to rgba, supported formats: `#ff0000`, `rgb(255, 255, 0)`, `argb(255, 0, 0, 0)`, `red`."}
+->rgba
+  (memoize
+    (fn [color]
+      (let [{:keys [r g b a]} (-> color
+                                  clj->js
+                                  js/tinycolor
+                                  .toRgb
+                                  (js->clj :keywordize-keys true))]
+        [r g b (* 255 a)]))))
+
+(defn ->url
+  "Get full url from relative or absolute url."
+  [src]
+  (if (or (string/starts-with? src "http://")
+          (string/starts-with? src "https://"))
+    src
+    (str (.. js/document -location -protocol)
+         "//"
+         (.. js/document -location -host)
+         src)))

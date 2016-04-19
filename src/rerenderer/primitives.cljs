@@ -1,24 +1,12 @@
 (ns rerenderer.primitives
   "Simple primitives for drawing. Using primitives is more preferd then
   creating components by yourself or operating with native-objects."
-  (:require [cljsjs.tinycolor]
-            [clojure.string :refer [starts-with?]]
-            [rerenderer.platform.browser.core :refer [IBrowser]]
+  (:require [rerenderer.platform.browser.core :refer [IBrowser]]
             [rerenderer.platform.android.core :refer [IAndroid]]
             [rerenderer.lang.core :as r :include-macros true]
             [rerenderer.types.component :refer [IComponent component->string
-                                                prepare-childs]]))
-
-(def ^{:doc "Converts color to rgba, supported formats: `#ff0000`, `rgb(255, 255, 0)`, `argb(255, 0, 0, 0)`, `red`."}
-->rgba
-  (memoize
-    (fn [color]
-      (let [{:keys [r g b a]} (-> color
-                                  clj->js
-                                  js/tinycolor
-                                  .toRgb
-                                  (js->clj :keywordize-keys true))]
-        [r g b (* 255 a)]))))
+                                                prepare-childs ->rgba
+                                                ->url]]))
 
 (defn rectangle
   "Rectangle primitive, can be nested.
@@ -139,15 +127,6 @@
           (r/.. paint (setTextSize font-size))
           (r/.. bitmap (drawText value x y paint)))))))
 
-(def ^{:doc "Get full image url by relative src."} get-image-url
-  (memoize (fn [src]
-             (if (or (starts-with? src "http://") (starts-with? src "https://"))
-               src
-               (str (.. js/document -location -protocol)
-                    ":/"
-                    (.. js/document -location -host)
-                    src)))))
-
 (defn image
   "Image primitive, can be nested.
 
@@ -201,7 +180,7 @@
           (r/.. ctx (drawImage img sx sy width height 0 0 width height))))
       IAndroid
       (render-android [_ bitmap]
-        (let [url (get-image-url src)
+        (let [url (->url src)
               bitmap (r/.. com -nvbn -tryrerenderer -RerendererLoader (bitmapFromUrl url))
               clipped (r/.. android -graphics -Bitmap (createBitmap bitmap sx sy width height))]
           (r/.. bitmap (drawBitmap clipped 0 0 (r/new Paint))))))))
