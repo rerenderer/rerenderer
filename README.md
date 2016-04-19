@@ -75,3 +75,51 @@ lein cljsbuild once
 cd android 
 ./gradlew copyAssets installDebug
 ```
+
+## Creating your own primitives
+
+If built-in primitives aren't enough for you, it's easy to create your
+own. You need to create function (primitive) that returns object (component)
+that implemented `IComponent` and platform-specific (`IAndroid`, `IBrowser`)
+protocols. And for nicer debugging it's good thing to implement 
+`Object` protocol with `toString` method.
+
+~~~clojure
+(ns example
+  (:require [rerenderer.platform.browser.core :refer [IBrowser]]
+            [rerenderer.platform.android.core :refer [IAndroid]]
+            [rerenderer.lang.core :as r :include-macros true]
+            [rerenderer.types.component :refer [IComponent component->string
+                                                prepare-childs]]))
+                                                
+(defn my-primitive
+  [{:keys [width height x y] :as props} & childs]
+  (reify
+    Object
+    (toString [this] (component->string this))
+    IComponent
+    (tag [_] "my-primitive")
+    (childs [_] (prepare-childs childs))
+    (props [_] props)
+    IBrowser
+    (render-browser [_ ctx] ; ctx is canvas's 2d context
+      ; Will run as `ctx.fillRect(x, y, width, height)`
+      (r/.. ctx (fillRect x y width height)))
+    IAndroid
+    (render-android [_ bitmap] ; android.graphics.Bitmap
+      ; Will run as `new android.graphics.Paint()`
+      (let [paint (r/new (r/.. android -graphics -Paint))]
+        ; Will run as `bitmap.drawRect(x, y, width, height, paint)
+        (r/.. bitmap (drawRect x y width height paint))))))
+~~~
+
+It's necessary to use `component->string` in `toString` and 
+`prepare-childs` in `childs`.
+
+Code inside platform's methods will be executed on platform's side. So
+here we should use `r/..`, `r/new` and `r/set!` instead of clojure's `..`,
+`new` and `set!`. For more information look to
+[documentation of rerenderer.lang.core](https://rerenderer.github.io/rerenderer/rerenderer.lang.core.html).
+
+Also code inside platform's methods should be fast and don't have side
+effects. It will be executed when any prop or child changed.

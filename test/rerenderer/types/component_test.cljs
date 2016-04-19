@@ -1,5 +1,5 @@
 (ns ^:figwheel-always rerenderer.types.component-test
-  (:require [cljs.test :refer-macros [deftest is]]
+  (:require [cljs.test :refer-macros [deftest is are]]
             [rerenderer.test-utils :refer [make-component]]
             [rerenderer.types.component :as c]))
 
@@ -30,3 +30,14 @@
 (deftest test-prepare-childs
   (is (= (c/prepare-childs [nil :a [nil :b] [:c [nil]]])
          [:a :b :c])))
+
+(deftest test->rgba
+  (are [before after] (= (c/->rgba before) after)
+    "#ff00ff" [255 0 255 255]
+    "red" [255 0 0 255]
+    "rgb(0,255,0)" [0 255 0 255]))
+
+(deftest test->url
+  (are [before after] (= (c/->url before) after)
+    "/img.jpg" "http://localhost:3449/img.jpg"
+    "https://test.com/img.png" "https://test.com/img.png"))
