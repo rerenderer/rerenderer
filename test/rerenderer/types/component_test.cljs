@@ -24,7 +24,7 @@
   (is (= (c/component->string tree) tree-text)))
 
 (deftest test-calculate-path
-  (is (= (c/calculate-path tree)
+  (is (= (c/path tree)
          tree-path)))
 
 (deftest test-prepare-childs

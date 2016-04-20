@@ -7,11 +7,6 @@
 
 ; Should be implemented on each platform:
 
-(defmulti apply-script!
-  "(script, root-canvas-id, options) -> null
-  Run script on platform side. final result of script on `root-canvas-id`."
-  get-platform)
-
 (defmulti listen!
   "(event-ch options) -> null
   Should put events to `event-ch`, supported events:
@@ -21,13 +16,17 @@
   get-platform)
 
 (defmulti render
-  "(component) -> RenderResult"
+  "Renders one component.
+
+  (parent-canvas component) -> result"
   get-platform)
 
-(defmulti render-to
-  "(child-node, parent-node) -> script
-  Render child node on top of parent node"
-  get-platform)
+(defmulti render-to (get-platform))
+
+(defmulti root-canvas get-platform)
+
+;(defmulti finalize
+;  "Call after rendering scene.")
 
 (defmulti information
   "Returns platform information in format:
@@ -35,3 +34,4 @@
    :height int-px
    :input #{:mouse :keyboard :touch}}"
   get-platform)
+

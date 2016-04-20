@@ -2,8 +2,7 @@
   "Simple primitives for drawing. Using primitives is more preferd then
   creating components by yourself or operating with native-objects."
   (:require [rerenderer.platform.browser.core :refer [IBrowser]]
-            [rerenderer.platform.android.core :refer [IAndroid]]
-            [rerenderer.lang.core :as r :include-macros true]
+    ;[rerenderer.platform.android.core :refer [IAndroid]]
             [rerenderer.types.component :refer [IComponent component->string
                                                 prepare-childs ->rgba
                                                 ->url]]))
@@ -54,14 +53,15 @@
       (render-browser [_ ctx]
         (let [[r g b a] color
               color (str "rgba(" r ", " g ", " b ", " a ")")]
-          (r/set! (r/.. ctx -fillStyle) color))
-        (r/.. ctx (fillRect 0 0 width height)))
-      IAndroid
-      (render-android [_ bitmap]
-        (let [paint (r/new (r/.. android -graphics -Paint))
-              [r g b a] color]
-          (r/.. paint (setARGB a r g b))
-          (r/.. bitmap (drawRect 0 0 width height paint)))))))
+          (set! (.-fillStyle ctx) color))
+        (.fillRect ctx 0 0 width height))
+      ;IAndroid
+      ;(render-android [_ bitmap]
+      ;  (let [paint (r/new (r/.. android -graphics -Paint))
+      ;        [r g b a] color]
+      ;    (r/.. paint (setARGB a r g b))
+      ;    (r/.. bitmap (drawRect 0 0 width height paint))))
+      )))
 
 (defn text
   "Text primitive, can be nested.
@@ -115,17 +115,18 @@
       (render-browser [_ ctx]
         (let [[r g b a] color
               color (str "rgba(" r ", " g ", " b ", " a ")")]
-          (r/set! (r/.. ctx -fillStyle) color)
-          (r/set! (r/.. ctx -font) (str font-size "px sans")))
-        (r/.. ctx (fillText value 0 font-size)))
-      IAndroid
-      (render-android [_ bitmap]
-        (let [paint (r/new (r/.. android -graphics -Paint))
-              [r g b a] color
-              y (- height y)]
-          (r/.. paint (setARGB a r g b))
-          (r/.. paint (setTextSize font-size))
-          (r/.. bitmap (drawText value x y paint)))))))
+          (set! (.-fillStyle ctx) color)
+          (set! (.-font ctx) (str font-size "px sans")))
+        (.fillText ctx value 0 font-size))
+      ;IAndroid
+      ;(render-android [_ bitmap]
+      ;  (let [paint (r/new (r/.. android -graphics -Paint))
+      ;        [r g b a] color
+      ;        y (- height y)]
+      ;    (r/.. paint (setARGB a r g b))
+      ;    (r/.. paint (setTextSize font-size))
+      ;    (r/.. bitmap (drawText value x y paint))))
+      )))
 
 (defn image
   "Image primitive, can be nested.
@@ -174,13 +175,14 @@
       (tag [_] "image")
       (childs [_] (prepare-childs childs))
       (props [_] props)
-      IBrowser
-      (render-browser [_ ctx]
-        (let [img (r/.. document (getElementById src))]
-          (r/.. ctx (drawImage img sx sy width height 0 0 width height))))
-      IAndroid
-      (render-android [_ bitmap]
-        (let [url (->url src)
-              bitmap (r/.. com -nvbn -tryrerenderer -RerendererLoader (bitmapFromUrl url))
-              clipped (r/.. android -graphics -Bitmap (createBitmap bitmap sx sy width height))]
-          (r/.. bitmap (drawBitmap clipped 0 0 (r/new Paint))))))))
+      ;IBrowser
+      ;(render-browser [_ ctx]
+      ;  (let [img (r/.. document (getElementById src))]
+      ;    (r/.. ctx (drawImage img sx sy width height 0 0 width height))))
+      ;IAndroid
+      ;(render-android [_ bitmap]
+      ;  (let [url (->url src)
+      ;        bitmap (r/.. com -nvbn -tryrerenderer -RerendererLoader (bitmapFromUrl url))
+      ;        clipped (r/.. android -graphics -Bitmap (createBitmap bitmap sx sy width height))]
+      ;    (r/.. bitmap (drawBitmap clipped 0 0 (r/new Paint)))))
+      )))
