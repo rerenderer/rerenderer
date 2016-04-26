@@ -1,15 +1,10 @@
 (ns rerenderer.test-utils
-  (:require [rerenderer.types.component :as c]
-            [rerenderer.lang.forms :refer [->Ref]]))
+  (:require [rerenderer.component :refer [IComponent]]))
 
 (defn make-component
   [tag props & childs]
   (reify
-    c/IComponent
+    IComponent
     (tag [_] tag)
     (childs [_] childs)
     (props [_] props)))
-
-(defn genref
-  []
-  (->Ref (gensym)))

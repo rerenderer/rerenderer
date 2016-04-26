@@ -1,12 +1,9 @@
 (ns ^:figwheel-always rerenderer.platform.browser.core-test
   (:require [cljs.test :refer-macros [deftest is testing]]
             [cljs.core.async :refer [chan]]
-            [rerenderer.test-utils :refer-macros [with-platform script-of match?]]
-            [rerenderer.lang.core :as r :include-macros true]
-            [rerenderer.lang.forms :refer [serialize Ref ->Ref]]
-            [rerenderer.types.component :refer [IComponent]]
-            [rerenderer.types.render-result :refer [RenderResult]]
-            [rerenderer.types.node :refer [->Node]]
+            [rerenderer.test-utils :refer-macros [with-platform match?]]
+            [rerenderer.component :refer [IComponent]]
+            [rerenderer.primitives :refer [rectangle]]
             [rerenderer.platform.browser.core :refer [IBrowser]]
             [rerenderer.platform.browser.events :refer [bind-events!]]
             [rerenderer.platform.core :as p]))
@@ -16,36 +13,12 @@
   (let [data (.. canvas (getContext "2d") (getImageData 0 0 x y) -data)]
     (mapv #(aget data %) (range 3))))
 
-(deftest test-allpy-script!
+(deftest test-render
   (with-platform :browser
-    (testing "without scale"
-      (r/recording script
-        (let [canvas (.createElement js/document "canvas")
-              root (r/.. document (createElement "Canvas"))
-              ctx (r/.. root (getContext "2d"))]
-          (r/set! (r/.. ctx -fillStyle) "rgb(255,0,0)")
-          (r/.. ctx (fillRect 0 0 10 10))
-          (p/apply-script! (mapv serialize @script)
-                           (serialize root)
-                           {:canvas canvas})
-          ; Check color of pixel:
-          (is (= (pixel-color canvas 1 1) [255 0 0])))))
-    (testing "with scale"
-      (let [canvas (.createElement js/document "canvas")]
-        (set! (.-width canvas) 800)
-        (set! (.-height canvas) 600)
-        (r/recording script
-          (let [root (r/.. document (createElement "Canvas"))
-                ctx (r/.. root (getContext "2d"))]
-            (r/set! (r/.. root -width) 1)
-            (r/set! (r/.. root -height) 1)
-            (r/set! (r/.. ctx -fillStyle) "rgb(255,255,255)")
-            (r/.. ctx (fillRect 0 0 1 1))
-            (p/apply-script! (mapv serialize @script)
-                             (serialize root)
-                             {:canvas canvas})
-            ; Ensure that 1x1 canvas scaled to 800x600
-            (is (= (pixel-color canvas 700 300) [255 255 255]))))))))
+    (let [tree (rectangle {:color "red" :width 100 :height 100})
+          canvas (.createElement js/document "canvas")]
+      (p/render tree {:canvas canvas})
+      (is (= (pixel-color canvas 5 5) [255 0 0])))))
 
 (deftest test-listen!
   (with-platform :browser
@@ -55,41 +28,6 @@
                                    (is (= ch ch-))
                                    (is (= canvas canvas-)))]
         (p/listen! ch {:canvas canvas})))))
-
-(deftest test-render
-  (with-platform :browser
-    (let [component (reify
-                      IComponent
-                      (tag [_] "test")
-                      (childs [_] [])
-                      (props [_] {:x 10 :y 10 :width 30 :height 40})
-                      IBrowser
-                      (render-browser [_ ctx]
-                        (r/set! (r/.. ctx -fillStyle) "red")))
-          result (p/render component)
-          ; It's simple to test serialized version of big script
-          script (mapv serialize (:script result))]
-      (is (instance? RenderResult result))
-      (is (instance? Ref (:canvas result)))
-      (is (match? script
-            [[:call [:ref _] [:static "document"] "createElement" [[:val "canvas"]]]
-             [:call [:ref _] [:ref _] "getContext" [[:val "2d"]]]
-             [:set [:ref _] "width" [:val 30]]
-             [:set [:ref _] "height" [:val 40]]
-             [:set [:ref _] "fillStyle" [:val "red"]]])))))
-
-
-(deftest test-render-to
-  (with-platform :browser
-    (let [child-node (->Node [] (script-of (r/new Canvas))
-                             (->Ref "x") 10 20)
-          parent-node (->Node [child-node] (script-of (r/new Canvas))
-                              (->Ref "y") 20 30)
-          ; It's simple to test serialized version of big script
-          script (mapv serialize (p/render-to child-node parent-node))]
-      (is (match? script
-            [[:call [:ref _] [:ref "y"] "getContext" [[:val "2d"]]]
-             [:call [:ref _] [:ref _] "drawImage" [[:ref "x"] [:val 10] [:val 20]]]])))))
 
 (deftest test-information
   (with-platform :browser

@@ -1,29 +1,28 @@
-(ns ^:figwheel-always rerenderer.types.component-test
+(ns ^:figwheel-always rerenderer.component-test
   (:require [cljs.test :refer-macros [deftest is are]]
             [rerenderer.test-utils :refer [make-component]]
-            [rerenderer.types.component :as c]))
+            [rerenderer.component :as c]))
 
 (def tree (make-component "rect" {:x 1 :y 2}
-            (make-component "oval" {:z 4 :color "red"}
-              (make-component "text" {:value "test"}))
-            (make-component "link" {:href :test})))
+            (make-component "oval" {:z 4 :color "red" :x 10 :y 20}
+              (make-component "text" {:value "test" :x 30 :y 40}))
+            (make-component "link" {:href :test :x 50 :y 60})))
 
 (def tree-text
-  (str "(rect {:x 1, :y 2}\n",
-       "    (oval {:z 4, :color \"red\"}\n",
-       "        (text {:value \"test\"}))\n",
-       "    (link {:href :test}))"))
+  (str "(rect {:x 1, :y 2}\n"
+       "    (oval {:z 4, :color \"red\", :x 10, :y 20}\n"
+       "        (text {:value \"test\", :x 30, :y 40}))\n"
+       "    (link {:href :test, :x 50, :y 60}))"))
 
 (def tree-path
-  (str "rect:{}:["
-       "oval:{:z 4, :color \"red\"}:["
-       "text:{:value \"test\"}:[]"
-       "]:link:{:href :test}:[]]"))
+  (str "rect:{}:[oval:{:z 4, :color \"red\"}:"
+       "[text:{:value \"test\"}:[]:(30, 40)]:"
+       "(10, 20):link:{:href :test}:[]:(50, 60)]"))
 
 (deftest test-component->string
   (is (= (c/component->string tree) tree-text)))
 
-(deftest test-calculate-path
+(deftest test-path
   (is (= (c/path tree)
          tree-path)))
 

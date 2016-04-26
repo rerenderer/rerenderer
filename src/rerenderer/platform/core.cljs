@@ -21,13 +21,6 @@
   (parent-canvas component) -> result"
   get-platform)
 
-(defmulti render-to (get-platform))
-
-(defmulti root-canvas get-platform)
-
-;(defmulti finalize
-;  "Call after rendering scene.")
-
 (defmulti information
   "Returns platform information in format:
   {:width int-px

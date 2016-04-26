@@ -2,8 +2,8 @@
   "Simple primitives for drawing. Using primitives is more preferd then
   creating components by yourself or operating with native-objects."
   (:require [rerenderer.platform.browser.core :refer [IBrowser]]
-    ;[rerenderer.platform.android.core :refer [IAndroid]]
-            [rerenderer.types.component :refer [IComponent component->string
+            [rerenderer.platform.android.core :refer [IAndroid]]
+            [rerenderer.component :refer [IComponent component->string
                                                 prepare-childs ->rgba
                                                 ->url]]))
 
@@ -55,13 +55,8 @@
               color (str "rgba(" r ", " g ", " b ", " a ")")]
           (set! (.-fillStyle ctx) color))
         (.fillRect ctx 0 0 width height))
-      ;IAndroid
-      ;(render-android [_ bitmap]
-      ;  (let [paint (r/new (r/.. android -graphics -Paint))
-      ;        [r g b a] color]
-      ;    (r/.. paint (setARGB a r g b))
-      ;    (r/.. bitmap (drawRect 0 0 width height paint))))
-      )))
+      IAndroid
+      (android-primitive [_] "bundled.rectangle"))))
 
 (defn text
   "Text primitive, can be nested.
@@ -118,7 +113,8 @@
           (set! (.-fillStyle ctx) color)
           (set! (.-font ctx) (str font-size "px sans")))
         (.fillText ctx value 0 font-size))
-      ;IAndroid
+      IAndroid
+      (android-primitive [_] "bundled.text")
       ;(render-android [_ bitmap]
       ;  (let [paint (r/new (r/.. android -graphics -Paint))
       ;        [r g b a] color

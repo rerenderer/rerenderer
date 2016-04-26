@@ -8,12 +8,11 @@
   []
   (aget js/window "android"))
 
-(defn interpret!
-  "Interpretes script on android side."
-  [script root options]
-  (.interpret js/android (to-json {:script script
-                                   :root root
-                                   :scale (boolean (:scale options))})))
+(defn render!
+  "Renders tree on android side."
+  [tree options]
+  (.render js/android (to-json {:tree tree
+                                :scale (boolean (:scale options))})))
 
 (defn on-event!
   "Subscribes to events, event have format {:event name **props}"

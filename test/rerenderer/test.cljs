@@ -4,15 +4,7 @@
             ; Fixes stange and infrequent errors like:
             ; Uncaught TypeError: Cannot read property 'forms_test' of undefined
             rerenderer.debug-test
-            rerenderer.lang.core-test
-            rerenderer.lang.forms-test
-            rerenderer.lang.gc-test
-            rerenderer.lang.utils-test
-            rerenderer.types.component-test
-            rerenderer.types.node-test
-            rerenderer.types.render-result-test
-            rerenderer.render-test
-            rerenderer.platform.browser.interpreter-test
+            rerenderer.component-test
             rerenderer.platform.browser.events-test
             rerenderer.platform.browser.core-test
             rerenderer.platform.android.bus-test

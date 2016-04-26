@@ -1,13 +1,6 @@
 (ns rerenderer.test-utils
   (:require [cljs.core.match :refer [match]]
-            [cljs.test :refer [assert-expr]]
-            [rerenderer.lang.core :as r]))
-
-(defmacro script-of
-  [& body]
-  `(r/recording script#
-     ~@body
-     @script#))
+            [cljs.test :refer [assert-expr]]))
 
 (defmacro with-platform
   "Sets platform to `platform`"

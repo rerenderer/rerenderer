@@ -1,13 +1,7 @@
 (ns rerenderer.platform.browser.core
   (:require [rerenderer.platform.core :as platform]
-            [rerenderer.platform.browser.interpreter :refer [interpret!]]
             [rerenderer.platform.browser.events :refer [bind-events!]]
-    ;[rerenderer.lang.core :as r :include-macros true]
-    ;[rerenderer.types.render-result :refer [->RenderResult]]
-            [rerenderer.types.component :refer [IComponent props path childs]]
-    ;[rerenderer.types.node :refer [Node]]
-
-            ))
+            [rerenderer.component :refer [IComponent props path childs]]))
 
 ; Set platform if nothing was set before:
 (when-not @platform/platform
@@ -26,8 +20,8 @@
                     ...
                     IBrowser
                     (render-browser [_ ctx]
-                      (r/set! (r/.. ctx -fillStyle) \"rgb(255, 0, 0)\")
-                      (r/.. ctx (fillRect 0 0 100 100))))
+                      (set! (.-fillStyle ctx) \"rgb(255, 0, 0)\")
+                      (.fillRect ctx 0 0 100 100)))
                   ```"))
 
 (defn- get-canvas
@@ -84,4 +78,3 @@
     {:width (.-width canvas)
      :height (.-height canvas)
      :input #{:mouse :keyboard}}))
-

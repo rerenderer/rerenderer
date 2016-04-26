@@ -1,4 +1,4 @@
-(ns rerenderer.types.component
+(ns rerenderer.component
   (:require [clojure.string :as string]
             [cljsjs.tinycolor]))
 
