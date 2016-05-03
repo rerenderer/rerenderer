@@ -1,24 +1,20 @@
 (ns ^:figwheel-always rerenderer.platform.browser.core-test
   (:require [cljs.test :refer-macros [deftest is testing]]
             [cljs.core.async :refer [chan]]
-            [rerenderer.test-utils :refer-macros [with-platform match?]]
+            [rerenderer.test-utils :refer-macros [with-platform match?]
+             :refer [browser-pixel-color]]
             [rerenderer.component :refer [IComponent]]
             [rerenderer.primitives :refer [rectangle]]
             [rerenderer.platform.browser.core :refer [IBrowser]]
             [rerenderer.platform.browser.events :refer [bind-events!]]
             [rerenderer.platform.core :as p]))
 
-(defn- pixel-color
-  [canvas x y]
-  (let [data (.. canvas (getContext "2d") (getImageData 0 0 x y) -data)]
-    (mapv #(aget data %) (range 3))))
-
 (deftest test-render
   (with-platform :browser
     (let [tree (rectangle {:color "red" :width 100 :height 100})
           canvas (.createElement js/document "canvas")]
       (p/render tree {:canvas canvas})
-      (is (= (pixel-color canvas 5 5) [255 0 0])))))
+      (is (= (browser-pixel-color canvas 5 5) [255 0 0])))))
 
 (deftest test-listen!
   (with-platform :browser

@@ -10,7 +10,8 @@
             rerenderer.platform.android.bus-test
             rerenderer.platform.android.events-test
             rerenderer.platform.android.core-test
-            rerenderer.platform.utils-test))
+            rerenderer.platform.utils-test
+            rerenderer.primitives-test))
 
 (enable-console-print!)
 (devtools/install!)

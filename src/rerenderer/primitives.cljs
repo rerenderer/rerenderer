@@ -114,15 +114,7 @@
           (set! (.-font ctx) (str font-size "px sans")))
         (.fillText ctx value 0 font-size))
       IAndroid
-      (android-primitive [_] "bundled.text")
-      ;(render-android [_ bitmap]
-      ;  (let [paint (r/new (r/.. android -graphics -Paint))
-      ;        [r g b a] color
-      ;        y (- height y)]
-      ;    (r/.. paint (setARGB a r g b))
-      ;    (r/.. paint (setTextSize font-size))
-      ;    (r/.. bitmap (drawText value x y paint))))
-      )))
+      (android-primitive [_] "bundled.text"))))
 
 (defn image
   "Image primitive, can be nested.
@@ -159,11 +151,13 @@
         y (or y 0)
         sx (or sx 0)
         sy (or sy 0)
+        src (->url src)
         props (assoc props
                 :x x
                 :y y
                 :sx sx
-                :sy sy)]
+                :sy sy
+                :src src)]
     (reify
       Object
       (toString [this] (component->string this))
@@ -171,14 +165,10 @@
       (tag [_] "image")
       (childs [_] (prepare-childs childs))
       (props [_] props)
-      ;IBrowser
-      ;(render-browser [_ ctx]
-      ;  (let [img (r/.. document (getElementById src))]
-      ;    (r/.. ctx (drawImage img sx sy width height 0 0 width height))))
-      ;IAndroid
-      ;(render-android [_ bitmap]
-      ;  (let [url (->url src)
-      ;        bitmap (r/.. com -nvbn -tryrerenderer -RerendererLoader (bitmapFromUrl url))
-      ;        clipped (r/.. android -graphics -Bitmap (createBitmap bitmap sx sy width height))]
-      ;    (r/.. bitmap (drawBitmap clipped 0 0 (r/new Paint)))))
-      )))
+      IBrowser
+      (render-browser [_ ctx]
+        (let [img (js/Image.)]
+          (set! (.-src img) src)
+          (.drawImage ctx img sx sy width height 0 0 width height)))
+      IAndroid
+      (android-primitive [_] "bundled.image"))))
