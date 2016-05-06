@@ -1,4 +1,4 @@
-(ns rerenderer.types.component
+(ns rerenderer.component
   (:require [clojure.string :as string]
             [cljsjs.tinycolor]))
 
@@ -41,12 +41,19 @@
            (str "\n" indent childs-text)
            "") ")")))
 
-(def ^:no-doc calculate-path
+(declare path)
+
+(defn child-path
+  [child]
+  (let [{:keys [x y]} (props child)]
+    (str (path child) ":("x ", " y ")")))
+
+(def ^:no-doc path
   (memoize
     (fn [component]
       (let [cache-props (dissoc (props component) :x :y)]
         (str (tag component) ":" cache-props ":["
-             (string/join ":" (map calculate-path (childs component)))
+             (string/join ":" (map child-path (childs component)))
              "]")))))
 
 (def ^{:doc "Converts color to rgba, supported formats: `#ff0000`, `rgb(255, 255, 0)`, `argb(255, 0, 0, 0)`, `red`."}

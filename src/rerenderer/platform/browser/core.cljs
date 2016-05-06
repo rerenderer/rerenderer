@@ -1,11 +1,7 @@
 (ns rerenderer.platform.browser.core
   (:require [rerenderer.platform.core :as platform]
-            [rerenderer.platform.browser.interpreter :refer [interpret!]]
             [rerenderer.platform.browser.events :refer [bind-events!]]
-            [rerenderer.lang.core :as r :include-macros true]
-            [rerenderer.types.render-result :refer [->RenderResult]]
-            [rerenderer.types.component :refer [IComponent props]]
-            [rerenderer.types.node :refer [Node]]))
+            [rerenderer.component :refer [IComponent props path childs]]))
 
 ; Set platform if nothing was set before:
 (when-not @platform/platform
@@ -24,8 +20,8 @@
                     ...
                     IBrowser
                     (render-browser [_ ctx]
-                      (r/set! (r/.. ctx -fillStyle) \"rgb(255, 0, 0)\")
-                      (r/.. ctx (fillRect 0 0 100 100))))
+                      (set! (.-fillStyle ctx) \"rgb(255, 0, 0)\")
+                      (.fillRect ctx 0 0 100 100)))
                   ```"))
 
 (defn- get-canvas
@@ -36,44 +32,45 @@
           (.getElementsByTagName "canvas")
           (aget 0))))
 
-; Platform methods:
-(defmethod platform/apply-script! :browser
-  [script [_ root-ref] options]
-  (let [canvas (get-canvas options)
-        ctx (.getContext canvas "2d")
-        pool (interpret! script)
-        rendered (pool root-ref)]
-    (if (:scale options)
-      (.drawImage ctx rendered
-                  0 0 (.-width rendered) (.-height rendered)
-                  0 0 (.-width canvas) (.-height canvas))
-      (.drawImage ctx rendered 0 0))))
+(def cache (atom {}))
+(def used (atom #{}))
 
 (defmethod platform/listen! :browser
   [ch options]
   (bind-events! ch (get-canvas options)))
 
-(defmethod platform/render :browser
-  [component]
+(defn render-component
+  [parent-canvas component]
   {:pre [(satisfies? IComponent component)
          (satisfies? IBrowser component)]}
-  (r/recording script
-    (let [{:keys [width height]} (props component)
-          canvas (r/.. document (createElement "canvas"))
-          ctx (r/.. canvas (getContext "2d"))]
-      (r/set! (r/.. canvas -width) width)
-      (r/set! (r/.. canvas -height) height)
-      (render-browser component ctx)
-      (->RenderResult @script canvas))))
+  (let [{:keys [width height x y]} (props component)
+        parent-ctx (.getContext parent-canvas "2d")
+        component-path (path component)]
+    (swap! used conj component-path)
+    (if (@cache component-path)
+      (let [canvas (@cache component-path)]
+        (.drawImage parent-ctx canvas x y)
+        canvas)
+      (let [canvas (.createElement js/document "canvas")
+            ctx (.getContext canvas "2d")]
+        (set! (.-width canvas) width)
+        (set! (.-height canvas) height)
+        (render-browser component ctx)
+        (doseq [child (childs component)]
+          (render-component canvas child))
+        (.drawImage parent-ctx canvas x y)
+        canvas))))
 
-(defmethod platform/render-to :browser
-  [child parent]
-  {:pre [(instance? Node child)
-         (instance? Node parent)]}
-  (r/recording script
-    (let [ctx (r/.. (:canvas parent) (getContext "2d"))]
-      (r/.. ctx (drawImage (:canvas child) (:x child) (:y child))))
-    @script))
+(defmethod platform/render :browser
+  [component options]
+  {:pre [(satisfies? IComponent component)
+         (satisfies? IBrowser component)]}
+  (reset! used #{})
+  (let [result (render-component (get-canvas options) component)]
+    (doseq [[k _] @cache
+            :when (not (@used k))]
+      (swap! cache dissoc k))
+    result))
 
 (defmethod platform/information :browser
   [options]
