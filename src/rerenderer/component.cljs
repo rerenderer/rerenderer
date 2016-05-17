@@ -41,14 +41,14 @@
            (str "\n" indent childs-text)
            "") ")")))
 
-(declare path)
+(declare ^:no-doc path)
 
-(defn child-path
+(defn ^:no-doc child-path
   [child]
   (let [{:keys [x y]} (props child)]
     (str (path child) ":("x ", " y ")")))
 
-(def ^:no-doc path
+(def ^{:doc "Returns full reversed components path, from childs to component."} ^:no-doc path
   (memoize
     (fn [component]
       (let [cache-props (dissoc (props component) :x :y)]

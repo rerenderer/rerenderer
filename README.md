@@ -88,7 +88,6 @@ protocols. And for nicer debugging it's good thing to implement
 (ns example
   (:require [rerenderer.platform.browser.core :refer [IBrowser]]
             [rerenderer.platform.android.core :refer [IAndroid]]
-            [rerenderer.lang.core :as r :include-macros true]
             [rerenderer.types.component :refer [IComponent component->string
                                                 prepare-childs]]))
                                                 
@@ -103,23 +102,50 @@ protocols. And for nicer debugging it's good thing to implement
     (props [_] props)
     IBrowser
     (render-browser [_ ctx] ; ctx is canvas's 2d context
-      ; Will run as `ctx.fillRect(x, y, width, height)`
-      (r/.. ctx (fillRect x y width height)))
+      (.fillRect ctx x y width height))
     IAndroid
-    (render-android [_ bitmap] ; android.graphics.Bitmap
-      ; Will run as `new android.graphics.Paint()`
-      (let [paint (r/new (r/.. android -graphics -Paint))]
-        ; Will run as `bitmap.drawRect(x, y, width, height, paint)
-        (r/.. bitmap (drawRect x y width height paint))))))
+    (android-primitive [_] "example.my-primitive"))) ; name of the androidn component
 ~~~
 
 It's necessary to use `component->string` in `toString` and 
 `prepare-childs` in `childs`.
 
-Code inside platform's methods will be executed on platform's side. So
-here we should use `r/..`, `r/new` and `r/set!` instead of clojure's `..`,
-`new` and `set!`. For more information look to
-[documentation of rerenderer.lang.core](https://rerenderer.github.io/rerenderer/rerenderer.lang.core.html).
+And also for android support you need to implement primitive in kotlin:
 
-Also code inside platform's methods should be fast and don't have side
+~~~kotlin
+package example.primitives
+
+import android.graphics.Canvas
+import android.graphics.Paint
+import org.rerenderer.android.primitives.registry
+
+class MyPrimitive(props: Map<String, Any?>,
+                  childs: List<BasePrimitive>,
+                  path: String) : BasePrimitive(props, childs, path) {
+    override fun render(canvas: Canvas, paint: Paint) {
+        val color = prop<Color>("color")
+        paint.setARGB(color.a, color.r, color.g, color.b)
+        canvas.drawRect(0f, 0f, prop("width"), prop("height"), paint)
+    }
+
+    companion object {
+        fun register() {
+            registry["example.my-primitive"] = ::MyPrimitive
+        }
+    }
+}
+~~~
+
+And register it in your activity, like:
+
+~~~kotlin
+override fun registerPrimitives() {
+    super.registerPrimitives()
+    // Register your primitives here
+    MyPrimitive.register()
+}
+~~~
+
+Code inside platform's methods should be fast and don't have side
 effects. It will be executed when any prop or child changed.
+

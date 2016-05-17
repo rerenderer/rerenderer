@@ -16,9 +16,9 @@
   get-platform)
 
 (defmulti render
-  "Renders one component.
+  "Renders root component.
 
-  (parent-canvas component) -> result"
+  (component options) -> result-canvas"
   get-platform)
 
 (defmulti information

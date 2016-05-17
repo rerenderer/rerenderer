@@ -32,14 +32,14 @@
           (.getElementsByTagName "canvas")
           (aget 0))))
 
-(def cache (atom {}))
-(def used (atom #{}))
+(def ^:no-doc cache (atom {}))
+(def ^:no-doc used (atom #{}))
 
 (defmethod platform/listen! :browser
   [ch options]
   (bind-events! ch (get-canvas options)))
 
-(defn render-component
+(defn ^:no-doc render-component
   [parent-canvas component]
   {:pre [(satisfies? IComponent component)
          (satisfies? IBrowser component)]}

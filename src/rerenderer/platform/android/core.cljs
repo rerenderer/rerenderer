@@ -12,7 +12,7 @@
   "Component that implement that protocol support rendering on Android."
   (android-primitive [this] "Name of android-side primitive."))
 
-(defn serialize-component
+(defn ^:no-doc serialize-component
   [component]
   [(android-primitive component) (props component)
    (for [child (childs component)]

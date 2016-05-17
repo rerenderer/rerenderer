@@ -1,4 +1,4 @@
-(defproject org.rerenderer/rerenderer "0.3.4"
+(defproject org.rerenderer/rerenderer "0.4.0"
   :description "Simple platform agnostic react-like library for drawing on canvas, handling events and playing sounds."
   :url "https://github.com/rerenderer/rerenderer"
   :license {:name "Eclipse Public License"
@@ -18,10 +18,9 @@
                            :namespaces [rerenderer.core
                                         rerenderer.primitives
                                         rerenderer.debug
-                                        rerenderer.lang.core
                                         rerenderer.platform.android.core
                                         rerenderer.platform.browser.core
-                                        rerenderer.types.component]
+                                        rerenderer.component]
                            :metadata {:doc/format :markdown}
                            :output-path "docs"}
                    :cljsbuild {:builds {:test {:source-paths ["test" "src"]
