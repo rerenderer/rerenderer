@@ -61,12 +61,16 @@
         (.drawImage parent-ctx canvas x y)
         canvas))))
 
+(defn render-top-component
+  [canvas component]
+  (js/requestAnimationFrame #(render-component canvas component)))
+
 (defmethod platform/render :browser
   [component options]
   {:pre [(satisfies? IComponent component)
          (satisfies? IBrowser component)]}
   (reset! used #{})
-  (let [result (render-component (get-canvas options) component)]
+  (let [result (render-top-component (get-canvas options) component)]
     (doseq [[k _] @cache
             :when (not (@used k))]
       (swap! cache dissoc k))

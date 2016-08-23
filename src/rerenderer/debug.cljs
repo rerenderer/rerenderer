@@ -7,7 +7,8 @@
   * `game` - `Game` record."
   [game]
   (println "Rerender game manually!")
-  (swap! (:state-atom game) identity))
+  (let [{:keys [render-state! state-atom]} game]
+    (render-state! @state-atom)))
 
 (defn swap-state!
   "Swaps game state, works like atom's `swap!`.
