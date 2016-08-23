@@ -149,3 +149,31 @@ override fun registerPrimitives() {
 Code inside platform's methods should be fast and don't have side
 effects. It will be executed when any prop or child changed.
 
+## Performance monitoring
+
+For checking fps, memory and cpu usage in browser you need to use
+[stats.js](https://github.com/mrdoob/stats.js). Add it to dependencies:
+
+```clojure
+[cljsjs/stats "16.0-0"]
+```
+
+Pair it with rerenderer:
+
+```clojure
+(ns ...
+  (:require [cljsjs/stats]))
+  
+(defn init-stats!
+  []
+  (let [stats (js/Stats.)]
+    (.showPanel stats 0)
+    (.. js/document -body (appendChild (.-domElement stats)))
+    stats))
+    
+(defonce stats (init-stats!))
+
+(defonce game (init! ...
+                     :stats stats))
+
+```
