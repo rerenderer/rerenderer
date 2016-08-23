@@ -75,15 +75,16 @@
   (js/requestAnimationFrame
     (fn []
       (binding [*used* (transient #{})]
-        (let [result (render-top-component (get-canvas options)
-                                           component
-                                           (:stats options))
-              used (persistent! *used*)]
-          (set! cache (->> (persistent! cache)
-                           (filter #(-> % first used))
-                           (into {})
-                           transient))
-          result)))))
+        (render-top-component (get-canvas options)
+                              component
+                              (:stats options))
+        (let [used (persistent! *used*)
+              next-cache (transient {})]
+          (doseq [path used
+                  :let [canvas (get cache path)]
+                  :when canvas]
+            (assoc! next-cache path canvas))
+          (set! cache next-cache))))))
 
 (defmethod platform/information :browser
   [options]
