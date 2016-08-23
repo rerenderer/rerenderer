@@ -32,8 +32,8 @@
           (.getElementsByTagName "canvas")
           (aget 0))))
 
-(def ^:no-doc cache (atom {}))
-(def ^:no-doc used (atom #{}))
+(def ^:no-doc cache (transient {}))
+(declare ^:no-doc ^:dynamic *used*)
 
 (defmethod platform/listen! :browser
   [ch options]
@@ -46,11 +46,10 @@
   (let [{:keys [width height x y]} (props component)
         parent-ctx (.getContext parent-canvas "2d")
         component-path (path component)]
-    (swap! used conj component-path)
-    (if (@cache component-path)
-      (let [canvas (@cache component-path)]
-        (.drawImage parent-ctx canvas x y)
-        canvas)
+    (conj! *used* component-path)
+    (if-let [canvas (get cache component-path)]
+      (do (.drawImage parent-ctx canvas x y)
+          canvas)
       (let [canvas (.createElement js/document "canvas")
             ctx (.getContext canvas "2d")]
         (set! (.-width canvas) width)
@@ -58,23 +57,33 @@
         (render-browser component ctx)
         (doseq [child (childs component)]
           (render-component canvas child))
+        (assoc! cache component-path canvas)
         (.drawImage parent-ctx canvas x y)
         canvas))))
 
 (defn render-top-component
-  [canvas component]
-  (js/requestAnimationFrame #(render-component canvas component)))
+  [canvas component stats]
+  (when stats (.begin stats))
+  (let [result (render-component canvas component)]
+    (when stats (.end stats))
+    result))
 
 (defmethod platform/render :browser
   [component options]
   {:pre [(satisfies? IComponent component)
          (satisfies? IBrowser component)]}
-  (reset! used #{})
-  (let [result (render-top-component (get-canvas options) component)]
-    (doseq [[k _] @cache
-            :when (not (@used k))]
-      (swap! cache dissoc k))
-    result))
+  (js/requestAnimationFrame
+    (fn []
+      (binding [*used* (transient #{})]
+        (let [result (render-top-component (get-canvas options)
+                                           component
+                                           (:stats options))
+              used (persistent! *used*)]
+          (set! cache (->> (persistent! cache)
+                           (filter #(-> % first used))
+                           (into {})
+                           transient))
+          result)))))
 
 (defmethod platform/information :browser
   [options]

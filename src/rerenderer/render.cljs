@@ -8,5 +8,5 @@
   "Returns channel that waits for states."
   [root state options]
   (try
-    (render (root state options))
+    (render (root state) options)
     (catch :default e (.error js/console "Rendering failed" e))))
