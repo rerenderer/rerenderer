@@ -154,7 +154,6 @@
         y (or y 0)
         sx (or sx 0)
         sy (or sy 0)
-        src (->url src)
         props (assoc props
                 :x x
                 :y y
