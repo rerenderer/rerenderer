@@ -2,6 +2,7 @@
   "Simple primitives for drawing. Using primitives is more preferd then
   creating components by yourself or operating with native-objects."
   (:require [rerenderer.platform.browser.core :refer [IBrowser]]
+            [rerenderer.platform.browser.utils :as browser-utils]
             [rerenderer.platform.android.core :refer [IAndroid]]
             [rerenderer.component :refer [IComponent component->string
                                                 prepare-childs ->rgba
@@ -116,6 +117,8 @@
       IAndroid
       (android-primitive [_] "bundled.text"))))
 
+(def browser-image-cache (transient {}))
+
 (defn image
   "Image primitive, can be nested.
 
@@ -167,8 +170,7 @@
       (props [_] props)
       IBrowser
       (render-browser [_ ctx]
-        (let [img (js/Image.)]
-          (set! (.-src img) src)
+        (let [img (browser-utils/get-image src)]
           (.drawImage ctx img sx sy width height 0 0 width height)))
       IAndroid
       (android-primitive [_] "bundled.image"))))
