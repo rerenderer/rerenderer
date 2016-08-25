@@ -177,3 +177,16 @@ Pair it with rerenderer:
                      :stats stats))
 
 ```
+
+## Debugging state
+
+For debugging state use:
+
+```clojure
+(ns ...
+  (:require [org.rerenderer.debug :as debug]))
+  
+(debug/watch-state! game (fn [new-state] (.log js/console new-state)))
+```
+
+It's recommended to use [cljs-devtools](https://github.com/binaryage/cljs-devtools).

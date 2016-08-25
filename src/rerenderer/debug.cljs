@@ -32,3 +32,9 @@
   * `game` - `Game` record."
   [game]
   (reset! (:state-atom game) (:initial-state game)))
+
+(defn watch-state!
+  "Add listener to state changes."
+  [game listener]
+  (add-watch (:state-atom game) :debug
+             #(listener %4)))
